@@ -191,6 +191,7 @@ function openP(id){curP=id;const p=STAFF.find(x=>x.id===id);const s=stOf(id);$("
  $("#drawer").classList.add("on");history.pushState({room:cur,drawer:id},"",location.hash||"#")}
 
 const FEM=new Set(["shahd","reem","noura","lina","sara","haya","dana","jood","lama","rahaf","rima","nada"]);
+const VOICE={"hamad":"IES4nrmZdUBHByLBde0P","shahd":"xPcC3nehhziQaOrIeAwv","nada":"L10lEremDiJfPicq5CPh","khaled":"OFHP1Qg30FPoNfkUFFlA","reem":"6aXW46RTUz6Y2lkBGQ1a","yousef":"hYqZq4J77gUOQZK4uSvg","noura":"80le32Uz2DfWFo4Foz0p","lina":"meAbY2VpJkt1q46qk56T","sara":"I3u6waC588j43py1kDN2","fahad":"5REPlS2Ja1VZ7zNA0ykn","majed":"ihycSANIrpHfhWoaq1g3","abdullah":"VMy40598IGgDeaOE8phq","haya":"JHdGl5PsEzushIzzVSd1","dana":"NwMzeQCEU9Ecy3zXYTkV","sultan":"ocqVw6LVSdCxCra4XhMH","tarek":"LXrTqFIgiubkrMkwvOUr","jood":"LjKPkQHpXCsWoy7Pjq4U","rakan":"amSNjVC0vWYiE8iGimVb","lama":"YwQu4f7UeJh7h0uWMnEn","badr":"mX8opBj7bbi4G2cE9j2w","rahaf":"vWDp3PLsTWjIhBxxUKh9","nayef":"QfMIySsRuJWjZPZCnDQp","nasser":"Jez3JdhBInQTvlAvDOWR","waleed":"1hEuyycI7VQwusZo3Qbe","rima":"mS4cERRqrNy5Kmlx8Udf"};
 const AG_F="agent_3701m81ztkykfh9b8je1ytjwynxd",AG_M="agent_5301m81zvyzae7jsrq9j0j09dwq5";
 let EL=null,conv=null,callId=null,muted=false;
 function loadEL(){if(EL)return EL;EL=new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.33.0/dist/lib.iife.js";sc.onload=()=>res(window.ElevenLabsClient);sc.onerror=()=>{EL=null;rej(new Error("load"))};document.head.appendChild(sc)});return EL}
@@ -222,7 +223,7 @@ async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!
  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
  catch(e){$("#cvs").disabled=false;cvState("المايك مقفول — اسمح للمايك من إعدادات المتصفح. لو فاتح من جوه تيليجرام، افتح الرابط في سفاري أو كروم.");return}
  let C;try{C=await loadEL()}catch(e){$("#cvs").disabled=false;cvState("مش قادر أحمّل المكالمة — اتأكد من النت وجرّب تاني.");return}
- const opts={agentId:FEM.has(id)?AG_F:AG_M,dynamicVariables:{emp_name:p.name,emp_role:p.role,emp_dept:d?d.name:"",emp_tasks:mine},
+ const opts={agentId:FEM.has(id)?AG_F:AG_M,dynamicVariables:{emp_name:p.name,emp_role:p.role,emp_dept:d?d.name:"",emp_tasks:mine},overrides:VOICE[id]?{tts:{voiceId:VOICE[id]}}:undefined,
   onConnect:()=>{cvUI(true);cvState("متصل — اتكلم براحتك","listen")},
   onDisconnect:()=>{conv=null;cvUI(false);$("#cvs").disabled=false;$("#cvs").textContent="📞 اتصل تاني";cvState("المكالمة خلصت. أي طلب قلته هيتسجل ويتنفذ.")},
   onModeChange:({mode})=>mode==="speaking"?cvState(p.name+" بيتكلم…","speak"):cvState("بيسمعك… اتكلم","listen"),
