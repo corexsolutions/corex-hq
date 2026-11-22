@@ -193,7 +193,12 @@ function openP(id){curP=id;const p=STAFF.find(x=>x.id===id);const s=stOf(id);$("
 const FEM=new Set(["shahd","reem","noura","lina","sara","haya","dana","jood","lama","rahaf","rima","nada"]);
 const VOICE={"hamad":"IES4nrmZdUBHByLBde0P","shahd":"xPcC3nehhziQaOrIeAwv","nada":"L10lEremDiJfPicq5CPh","khaled":"OFHP1Qg30FPoNfkUFFlA","reem":"6aXW46RTUz6Y2lkBGQ1a","yousef":"hYqZq4J77gUOQZK4uSvg","noura":"80le32Uz2DfWFo4Foz0p","lina":"meAbY2VpJkt1q46qk56T","sara":"I3u6waC588j43py1kDN2","fahad":"5REPlS2Ja1VZ7zNA0ykn","majed":"ihycSANIrpHfhWoaq1g3","abdullah":"VMy40598IGgDeaOE8phq","haya":"JHdGl5PsEzushIzzVSd1","dana":"NwMzeQCEU9Ecy3zXYTkV","sultan":"ocqVw6LVSdCxCra4XhMH","tarek":"LXrTqFIgiubkrMkwvOUr","jood":"LjKPkQHpXCsWoy7Pjq4U","rakan":"amSNjVC0vWYiE8iGimVb","lama":"YwQu4f7UeJh7h0uWMnEn","badr":"mX8opBj7bbi4G2cE9j2w","rahaf":"vWDp3PLsTWjIhBxxUKh9","nayef":"QfMIySsRuJWjZPZCnDQp","nasser":"Jez3JdhBInQTvlAvDOWR","waleed":"1hEuyycI7VQwusZo3Qbe","rima":"mS4cERRqrNy5Kmlx8Udf"};
 const AG_MONA="agent_1901m7znrmtmfbfswmd325epwv07",AG_F="agent_3701m81ztkykfh9b8je1ytjwynxd",AG_M="agent_5301m81zvyzae7jsrq9j0j09dwq5";
-let EL=null,conv=null,callId=null,muted=false;
+let EL=null,conv=null,callId=null,muted=false,SIM=null,simli=null;
+const SIMLI_TOKEN="https://corex.app.n8n.cloud/webhook/hq-simli-token",FACE_F="a6d08e06-038a-4b32-84ae-b02e0f0f1140",FACE_M="99767950-9d68-4783-a305-9118006d3363",FACE={};
+function loadSimli(){if(SIM)return SIM;SIM=new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="simli.js?v=1";sc.onload=()=>res(window.SimliClient);sc.onerror=()=>{SIM=null;rej(new Error("simli"))};document.head.appendChild(sc)});return SIM}
+async function startFace(id,female){try{const SC=await loadSimli();const r=await fetch(SIMLI_TOKEN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({faceId:FACE[id]||(female?FACE_F:FACE_M)})});const j=await r.json();if(!j.session_token||/fail/i.test(j.session_token))throw new Error("token");
+ const c=new SC(j.session_token,$("#cvv"),$("#cvau"),null);c.on&&c.on("stop",()=>{});await Promise.race([c.start(),new Promise((_,rj)=>setTimeout(()=>rj(new Error("timeout")),20000))]);$("#cv").classList.add("avt");return c}catch(e){console.log("simli",e);$("#cv").classList.remove("avt");return null}}
+function b64u8(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
 function loadEL(){if(EL)return EL;EL=new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.33.0/dist/lib.iife.js";sc.onload=()=>res(window.ElevenLabsClient);sc.onerror=()=>{EL=null;rej(new Error("load"))};document.head.appendChild(sc)});return EL}
 (function(){const st=document.createElement("style");st.textContent=`
 #cv{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;background:linear-gradient(170deg,#2C1938,#150B1D);color:#fff;padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));font-family:inherit}
@@ -208,8 +213,10 @@ function loadEL(){if(EL)return EL;EL=new Promise((res,rej)=>{const sc=document.c
 #cv .m.u{align-self:flex-start;background:#1f9d55}#cv .m.a{align-self:flex-end;background:rgba(255,255,255,.12)}
 #cv .bt{display:flex;gap:14px;justify-content:center;width:100%;padding-top:10px}
 #cv .bt button{border:0;border-radius:999px;font:inherit;font-size:18px;color:#fff;padding:16px 24px;cursor:pointer}
+#cv .vid{display:none;width:min(80vw,360px);aspect-ratio:1;border-radius:22px;overflow:hidden;background:#000;margin-top:6px;border:3px solid rgba(255,255,255,.85);box-shadow:0 10px 40px rgba(0,0,0,.5)}#cv .vid video{width:100%;height:100%;object-fit:cover;display:block}#cv.avt .vid{display:block}#cv.avt .av{display:none}
 #cvs{background:#1f9d55;flex:1;max-width:340px}#cve{background:#c0392b}#cvm{background:rgba(255,255,255,.18)}`;document.head.appendChild(st);
-const d=document.createElement("div");d.id="cv";d.innerHTML=`<button class="x" id="cvx">✕ قفل</button><div class="av" id="cva"></div><h3 id="cvn"></h3><div class="rl" id="cvr"></div><div class="stt" id="cvt"></div><div class="tr" id="cvtr"></div><div class="bt"><button id="cvs">📞 ابدأ المكالمة</button><button id="cvm" hidden>🔇 كتم</button><button id="cve" hidden>إنهاء</button></div>`;document.body.appendChild(d)})();
+const d=document.createElement("div");d.id="cv";d.innerHTML=`<button class="x" id="cvx">✕ قفل</button><div class="av" id="cva"></div><div class="vid"><video id="cvv" playsinline autoplay muted></video></div><audio id="cvau" autoplay></audio><h3 id="cvn"></h3><div class="rl" id="cvr"></div><div class="stt" id="cvt"></div><div class="tr" id="cvtr"></div><div class="bt"><button id="cvs">📞 ابدأ المكالمة</button><button id="cvm" hidden>🔇 كتم</button><button id="cve" hidden>إنهاء</button></div>`;document.body.appendChild(d)})();
+function isMonaF(id){return id==="shahd"||FEM.has(id)}
 function cvState(t,cls){$("#cvt").textContent=t;$("#cv").classList.remove("speak","listen");if(cls)$("#cv").classList.add(cls)}
 function cvMsg(txt,me){const m=document.createElement("div");m.className="m "+(me?"u":"a");m.textContent=txt;$("#cvtr").appendChild(m);$("#cvtr").scrollTop=1e6}
 function cvUI(live){$("#cvs").hidden=live;$("#cve").hidden=!live;$("#cvm").hidden=!live}
@@ -223,15 +230,19 @@ async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!
  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
  catch(e){$("#cvs").disabled=false;cvState("المايك مقفول — اسمح للمايك من إعدادات المتصفح. لو فاتح من جوه تيليجرام، افتح الرابط في سفاري أو كروم.");return}
  let C;try{C=await loadEL()}catch(e){$("#cvs").disabled=false;cvState("مش قادر أحمّل المكالمة — اتأكد من النت وجرّب تاني.");return}
+ cvState("بيجهّز الصورة…");simli=await startFace(id,isMonaF(id));const face=simli;cvState("بيتصل…");
  const isMona=id==="shahd";const opts={agentId:isMona?AG_MONA:(FEM.has(id)?AG_F:AG_M),dynamicVariables:{emp_name:p.name,emp_role:p.role,emp_dept:d?d.name:"",emp_tasks:mine},overrides:(!isMona&&VOICE[id])?{tts:{voiceId:VOICE[id]}}:undefined,
   onConnect:()=>{cvUI(true);cvState("متصل — اتكلم براحتك","listen")},
-  onDisconnect:()=>{conv=null;cvUI(false);$("#cvs").disabled=false;$("#cvs").textContent="📞 اتصل تاني";cvState("المكالمة خلصت. أي طلب قلته هيتسجل ويتنفذ.")},
+  onDisconnect:()=>{conv=null;if(simli){try{simli.stop()}catch(e){}simli=null;$("#cv").classList.remove("avt")}cvUI(false);$("#cvs").disabled=false;$("#cvs").textContent="📞 اتصل تاني";cvState("المكالمة خلصت. أي طلب قلته هيتسجل ويتنفذ.")},
   onModeChange:({mode})=>mode==="speaking"?cvState(p.name+" بيتكلم…","speak"):cvState("بيسمعك… اتكلم","listen"),
   onMessage:m=>{if(m&&m.message)cvMsg(m.message,(m.role||m.source)==="user")},
   onError:e=>console.log("EL",e)};
+ if(face){opts.onAudio=b=>{try{const u=b64u8(b);for(let i=0;i<u.length;i+=6000)face.sendAudioData(u.subarray(i,i+6000))}catch(e){}};opts.onInterruption=()=>{try{face.ClearBuffer()}catch(e){}};
+  const oc=opts.onConnect;opts.onConnect=a=>{oc(a);const mute=()=>conv?conv.setVolume({volume:0}):setTimeout(mute,10);mute()}}
+ if(face){try{conv=await C.Conversation.startSession({...opts,connectionType:"websocket"});conv.setVolume({volume:0});return}catch(e0){console.log(e0);try{await face.stop()}catch(e){}simli=null;$("#cv").classList.remove("avt");delete opts.onAudio}}
  try{conv=await C.Conversation.startSession({...opts,connectionType:"webrtc"})}
  catch(e1){try{conv=await C.Conversation.startSession({...opts,connectionType:"websocket"})}catch(e2){$("#cvs").disabled=false;cvState("المكالمة ما اتفتحتش — جرّب تاني بعد شوية.");console.log(e1,e2)}}}
-async function endCall(){if(conv){try{await conv.endSession()}catch(e){}conv=null}}
+async function endCall(){if(conv){try{await conv.endSession()}catch(e){}conv=null}if(simli){try{await simli.stop()}catch(e){}simli=null}$("#cv").classList.remove("avt")}
 function closeCall(){endCall();$("#cv").classList.remove("on");muted=false;$("#cvm").textContent="🔇 كتم"}
 $("#cvs").onclick=startCall;$("#cve").onclick=endCall;
 $("#cvm").onclick=()=>{if(!conv)return;muted=!muted;conv.setMicMuted(muted);$("#cvm").textContent=muted?"🎙️ افتح المايك":"🔇 كتم"};
