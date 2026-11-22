@@ -1,2 +1,2 @@
-# corex-hq
-CoreX virtual HQ - page and media
+# CoreX HQ
+مقر كورإكس الافتراضي — https://corexsolutions.github.io/corex-hq/
