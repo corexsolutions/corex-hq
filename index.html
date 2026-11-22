@@ -192,13 +192,13 @@ function openP(id){curP=id;const p=STAFF.find(x=>x.id===id);const s=stOf(id);$("
 
 const FEM=new Set(["shahd","reem","noura","lina","sara","haya","dana","jood","lama","rahaf","rima","nada"]);
 const VOICE={"hamad":"IES4nrmZdUBHByLBde0P","shahd":"xPcC3nehhziQaOrIeAwv","nada":"L10lEremDiJfPicq5CPh","khaled":"OFHP1Qg30FPoNfkUFFlA","reem":"6aXW46RTUz6Y2lkBGQ1a","yousef":"hYqZq4J77gUOQZK4uSvg","noura":"80le32Uz2DfWFo4Foz0p","lina":"meAbY2VpJkt1q46qk56T","sara":"I3u6waC588j43py1kDN2","fahad":"5REPlS2Ja1VZ7zNA0ykn","majed":"ihycSANIrpHfhWoaq1g3","abdullah":"VMy40598IGgDeaOE8phq","haya":"JHdGl5PsEzushIzzVSd1","dana":"NwMzeQCEU9Ecy3zXYTkV","sultan":"ocqVw6LVSdCxCra4XhMH","tarek":"LXrTqFIgiubkrMkwvOUr","jood":"LjKPkQHpXCsWoy7Pjq4U","rakan":"amSNjVC0vWYiE8iGimVb","lama":"YwQu4f7UeJh7h0uWMnEn","badr":"mX8opBj7bbi4G2cE9j2w","rahaf":"vWDp3PLsTWjIhBxxUKh9","nayef":"QfMIySsRuJWjZPZCnDQp","nasser":"Jez3JdhBInQTvlAvDOWR","waleed":"1hEuyycI7VQwusZo3Qbe","rima":"mS4cERRqrNy5Kmlx8Udf"};
-const AG_F="agent_3701m81ztkykfh9b8je1ytjwynxd",AG_M="agent_5301m81zvyzae7jsrq9j0j09dwq5";
+const AG_MONA="agent_1901m7znrmtmfbfswmd325epwv07",AG_F="agent_3701m81ztkykfh9b8je1ytjwynxd",AG_M="agent_5301m81zvyzae7jsrq9j0j09dwq5";
 let EL=null,conv=null,callId=null,muted=false;
 function loadEL(){if(EL)return EL;EL=new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.33.0/dist/lib.iife.js";sc.onload=()=>res(window.ElevenLabsClient);sc.onerror=()=>{EL=null;rej(new Error("load"))};document.head.appendChild(sc)});return EL}
 (function(){const st=document.createElement("style");st.textContent=`
 #cv{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;background:linear-gradient(170deg,#2C1938,#150B1D);color:#fff;padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));font-family:inherit}
 #cv.on{display:flex}#cv .x{align-self:flex-start;background:none;border:0;color:#d9cbe8;font:inherit;font-size:16px;padding:8px}
-#cv .av{width:120px;height:120px;border-radius:50%;background:#8E6BA8;display:grid;place-items:center;font-size:52px;font-weight:700;margin-top:10px;box-shadow:0 0 0 0 rgba(201,167,255,.6)}
+#cv .av{width:150px;height:150px;border-radius:50%;background:#8E6BA8 center/cover no-repeat;border:3px solid rgba(255,255,255,.85);display:grid;place-items:center;font-size:52px;font-weight:700;margin-top:10px;box-shadow:0 0 0 0 rgba(201,167,255,.6)}
 #cv.speak .av{animation:pl 1.1s infinite}#cv.listen .av{box-shadow:0 0 0 6px rgba(31,157,85,.7)}
 @keyframes pl{0%{box-shadow:0 0 0 0 rgba(201,167,255,.7)}100%{box-shadow:0 0 0 26px rgba(201,167,255,0)}}
 #cv h3{margin:14px 0 2px;font-size:24px}#cv .rl{color:#cbb9de;font-size:14px;text-align:center}
@@ -214,7 +214,7 @@ function cvState(t,cls){$("#cvt").textContent=t;$("#cv").classList.remove("speak
 function cvMsg(txt,me){const m=document.createElement("div");m.className="m "+(me?"u":"a");m.textContent=txt;$("#cvtr").appendChild(m);$("#cvtr").scrollTop=1e6}
 function cvUI(live){$("#cvs").hidden=live;$("#cve").hidden=!live;$("#cvm").hidden=!live}
 function callP(id){const p=STAFF.find(x=>x.id===id);if(!p)return;const d=DEPTS.find(x=>x.id===p.dept);callId=id;
- $("#drawer").classList.remove("on");$("#cva").textContent=FEM.has(id)?"👩‍💼":"👨‍💼";$("#cvn").textContent=p.name;$("#cvr").textContent=p.role+(d?" — "+d.name:"");
+ $("#drawer").classList.remove("on");$("#cva").textContent="";$("#cva").style.backgroundImage="url(av/"+id+".jpg)";$("#cvn").textContent=p.name;$("#cvr").textContent=p.role+(d?" — "+d.name:"");
  $("#cvtr").innerHTML="";cvUI(false);cvState("اضغط «ابدأ المكالمة» واسمح للمايك، وكلّم "+p.name+" بصوتك.");$("#cv").classList.add("on");
  history.pushState({room:cur,call:id},"",location.hash||"#");loadEL().catch(()=>{})}
 async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!p)return;const d=DEPTS.find(x=>x.id===p.dept);
@@ -223,7 +223,7 @@ async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!
  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
  catch(e){$("#cvs").disabled=false;cvState("المايك مقفول — اسمح للمايك من إعدادات المتصفح. لو فاتح من جوه تيليجرام، افتح الرابط في سفاري أو كروم.");return}
  let C;try{C=await loadEL()}catch(e){$("#cvs").disabled=false;cvState("مش قادر أحمّل المكالمة — اتأكد من النت وجرّب تاني.");return}
- const opts={agentId:FEM.has(id)?AG_F:AG_M,dynamicVariables:{emp_name:p.name,emp_role:p.role,emp_dept:d?d.name:"",emp_tasks:mine},overrides:VOICE[id]?{tts:{voiceId:VOICE[id]}}:undefined,
+ const isMona=id==="shahd";const opts={agentId:isMona?AG_MONA:(FEM.has(id)?AG_F:AG_M),dynamicVariables:{emp_name:p.name,emp_role:p.role,emp_dept:d?d.name:"",emp_tasks:mine},overrides:(!isMona&&VOICE[id])?{tts:{voiceId:VOICE[id]}}:undefined,
   onConnect:()=>{cvUI(true);cvState("متصل — اتكلم براحتك","listen")},
   onDisconnect:()=>{conv=null;cvUI(false);$("#cvs").disabled=false;$("#cvs").textContent="📞 اتصل تاني";cvState("المكالمة خلصت. أي طلب قلته هيتسجل ويتنفذ.")},
   onModeChange:({mode})=>mode==="speaking"?cvState(p.name+" بيتكلم…","speak"):cvState("بيسمعك… اتكلم","listen"),
