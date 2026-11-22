@@ -32,6 +32,9 @@ h2{font-family:var(--display);font-size:20px;margin:0}
 .room.on{display:flex}
 .roombar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .back{font:inherit;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 14px;cursor:pointer}
+.scene img.ins{position:absolute;width:24%;height:auto;aspect-ratio:1028/575;object-fit:cover;border-radius:12px;border:3px solid rgba(255,255,255,.92);box-shadow:0 12px 30px rgba(0,0,0,.35);z-index:2}
+.ins-l{position:absolute;z-index:2;background:rgba(21,11,29,.78);color:#fff;font-size:11px;padding:2px 8px;border-radius:999px;}
+.hs{z-index:3}
 .scene{position:relative;max-width:960px;width:100%;margin:0 auto;border-radius:16px;overflow:hidden;background:#d8d0c3;box-shadow:0 10px 30px rgba(60,40,10,.18)}
 .scene img,.scene video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
 .scene img.kb{animation:kb 24s ease-in-out infinite alternate;transform-origin:50% 45%}
@@ -134,11 +137,12 @@ const DEPTS=[
 const STAFF=[
 ["hamad","حسام","مدير العمليات — يوزّع مهامك ويرجع بالتقرير","mgmt",1,87,33],
 ["shahd","منى","مديرة المكتب — التقويم والمتابعات","mgmt",0,32,30],
+["omar","عمر","تحليل البيانات — التقارير والداشبوردات والمؤشرات","mgmt",0,47,36],
 ["khaled","كريم","مدير المبيعات","sales",1,22,22],["reem","ياسمين","الليدز وتسجيلها","sales",0,42,44],["yousef","شريف","عروض الأسعار والعقود","sales",0,62,41],["noura","دينا","متابعة العملاء","sales",0,80,46],
 ["lina","رانيا","مديرة التسويق","mkt",1,24,22],["sara","سلمى","المحتوى والسوشيال","mkt",0,41,46],["fahad","حازم","الإعلانات الممولة","mkt",0,65,40],["majed","باسم","السيو والموقع","mkt",0,87,45],
 ["abdullah","عادل","المدير المالي","fin",1,24,24],["haya","هبة","الفواتير والمصروفات","fin",0,34,45],["dana","نهى","الرواتب","fin",0,66,41],["sultan","مدحت","التقارير والضريبة","fin",0,85,41],
 ["tarek","هشام","مدير المشاريع","impl",1,24,24],["jood","مروة","المتطلبات وBRD","impl",0,38,51],["rakan","إسلام","إعداد أودو","impl",0,66,43],["lama","نورهان","التوثيق والتدريب","impl",0,89,49],
-["badr","تامر","مدير الدعم الفني","sup",1,28,23],["rahaf","شيماء","التذاكر","sup",0,38,42],["nayef","أشرف","ساعات الدعم","sup",0,68,41],
+["badr","تامر","مدير الدعم الفني","sup",1,28,23],["rahaf","شيماء","التذاكر","sup",0,38,42],["nayef","أشرف","ساعات الدعم","sup",0,68,41],["ziad","زياد","الأمن السيبراني — حماية السيرفرات ومنع الاختراق","sup",0,10,41],
 ["nasser","جمال","مدير الشؤون الحكومية","gov",1,29,22],["waleed","أيمن","المنصات الحكومية","gov",0,47,33],["rima","إيمان","العقود والأرشيف","gov",0,69,34],
 ["nada","ندى","الاستقبال — المكالمات والزوار والمواعيد","lobby",1,54,46]
 ].map(([id,name,role,dept,lead,x,y])=>({id,name,role,dept,lead:!!lead,x,y}));
@@ -176,8 +180,10 @@ let NOPUSH=false;
 function closeRoom(){cur=null;$("#room").classList.remove("on");$("#corr").style.display="";if(!NOPUSH)history.replaceState(null,"",location.pathname+location.search.replace(/[?&]call=[^&]*/,""))}
 function goBack(){if(history.state&&history.state.room)history.back();else closeRoom()}
 addEventListener("popstate",()=>{NOPUSH=true;$("#drawer").classList.remove("on");const h=location.hash.slice(1);if(DEPTS.some(d=>d.id===h)){if(cur!==h)openRoom(h)}else closeRoom();NOPUSH=false});
+const INSET={omar:{l:38,t:30,img:"omar.jpg",lab:"مكتب عمر — تحليل البيانات"},ziad:{l:1,t:34,img:"ziad.jpg",lab:"مكتب زياد — الأمن السيبراني"}};
 function renderRoom(){if(!cur)return;const ppl=STAFF.filter(p=>p.dept===cur);
- $("#scene").querySelectorAll(".hs").forEach(e=>e.remove());
+ $("#scene").querySelectorAll(".hs,.ins,.ins-l").forEach(e=>e.remove());
+ for(const p of ppl){const q=INSET[p.id];if(!q)continue;const im=document.createElement("img");im.className="ins";im.src=q.img;im.alt=q.lab;im.style.cssText=`left:${q.l}%;top:${q.t}%`;im.onclick=()=>openP(p.id);$("#scene").appendChild(im);const lb=document.createElement("span");lb.className="ins-l";lb.textContent=q.lab;lb.style.cssText=`left:calc(${q.l}% + 8px);top:calc(${q.t}% + 20%)`;$("#scene").appendChild(lb)}
  $("#rhint").textContent=cur==="lounge"?(()=>{const f=STAFF.filter(p=>stOf(p.id)!=="working"&&stOf(p.id)!=="waiting").map(p=>p.name);return f.length?"في الاستراحة دلوقتي: "+f.join("، "):"الكل شغال دلوقتي 💪"})():ppl.length?"اضغط على أي موظف تشوف مهامه أو تكلّفه":"";
  for(const p of ppl){const s=stOf(p.id);const b=document.createElement("button");b.className="hs "+s;b.style.cssText=`left:${p.x}%;top:${p.y}%;--c:${STC[s]}`;b.style.transform="translate(-50%,-100%)";
   const tk=live[p.id]&&live[p.id].task;b.innerHTML=`<span class="card"><b>${esc(p.name)}${p.lead?" ★":""}</b><i>${s==="working"?`<span class="typing">بيشتغل <i></i><i></i><i></i></span>`:ST[s]}</i>${tk&&s!=="idle"?`<span class="tk">${esc(tk)}</span>`:""}</span><span class="pin"></span>`;b.onclick=()=>openP(p.id);$("#scene").appendChild(b)}
@@ -191,7 +197,7 @@ function openP(id){curP=id;const p=STAFF.find(x=>x.id===id);const s=stOf(id);$("
  $("#drawer").classList.add("on");history.pushState({room:cur,drawer:id},"",location.hash||"#")}
 
 const FEM=new Set(["shahd","reem","noura","lina","sara","haya","dana","jood","lama","rahaf","rima","nada"]);
-const VOICE={"hamad":"IES4nrmZdUBHByLBde0P","shahd":"xPcC3nehhziQaOrIeAwv","nada":"L10lEremDiJfPicq5CPh","khaled":"OFHP1Qg30FPoNfkUFFlA","reem":"6aXW46RTUz6Y2lkBGQ1a","yousef":"hYqZq4J77gUOQZK4uSvg","noura":"80le32Uz2DfWFo4Foz0p","lina":"Vu9gRjkR23ZG8EWrSmnj","sara":"I3u6waC588j43py1kDN2","fahad":"5REPlS2Ja1VZ7zNA0ykn","majed":"ihycSANIrpHfhWoaq1g3","abdullah":"VMy40598IGgDeaOE8phq","haya":"JHdGl5PsEzushIzzVSd1","dana":"kQ2VDreF7XEea8InkZmA","sultan":"ocqVw6LVSdCxCra4XhMH","tarek":"x6fvBLXv9YxzoVJQ0wp6","jood":"LjKPkQHpXCsWoy7Pjq4U","rakan":"ckGEQg6YnSVooU5uDRsF","lama":"YwQu4f7UeJh7h0uWMnEn","badr":"mX8opBj7bbi4G2cE9j2w","rahaf":"vWDp3PLsTWjIhBxxUKh9","nayef":"QfMIySsRuJWjZPZCnDQp","nasser":"JTMaHm6sHVI3NZgPaWDz","waleed":"FXJhBZJ1DJMO0U4ZPSur","rima":"mS4cERRqrNy5Kmlx8Udf"};
+const VOICE={"omar":"PmRaqkJ2uk3Y9jrp9UjJ","ziad":"Rs6W7zDzDMy5M4DoQvwj","hamad":"IES4nrmZdUBHByLBde0P","shahd":"xPcC3nehhziQaOrIeAwv","nada":"L10lEremDiJfPicq5CPh","khaled":"OFHP1Qg30FPoNfkUFFlA","reem":"6aXW46RTUz6Y2lkBGQ1a","yousef":"hYqZq4J77gUOQZK4uSvg","noura":"80le32Uz2DfWFo4Foz0p","lina":"Vu9gRjkR23ZG8EWrSmnj","sara":"I3u6waC588j43py1kDN2","fahad":"5REPlS2Ja1VZ7zNA0ykn","majed":"ihycSANIrpHfhWoaq1g3","abdullah":"VMy40598IGgDeaOE8phq","haya":"JHdGl5PsEzushIzzVSd1","dana":"kQ2VDreF7XEea8InkZmA","sultan":"ocqVw6LVSdCxCra4XhMH","tarek":"x6fvBLXv9YxzoVJQ0wp6","jood":"LjKPkQHpXCsWoy7Pjq4U","rakan":"ckGEQg6YnSVooU5uDRsF","lama":"YwQu4f7UeJh7h0uWMnEn","badr":"mX8opBj7bbi4G2cE9j2w","rahaf":"vWDp3PLsTWjIhBxxUKh9","nayef":"QfMIySsRuJWjZPZCnDQp","nasser":"JTMaHm6sHVI3NZgPaWDz","waleed":"FXJhBZJ1DJMO0U4ZPSur","rima":"mS4cERRqrNy5Kmlx8Udf"};
 const AG_MONA="agent_1901m7znrmtmfbfswmd325epwv07",AG_F="agent_3701m81ztkykfh9b8je1ytjwynxd",AG_M="agent_5301m81zvyzae7jsrq9j0j09dwq5";
 let EL=null,conv=null,callId=null,muted=false,SIM=null,simli=null;
 const SIMLI_TOKEN="https://corex.app.n8n.cloud/webhook/hq-simli-token",FACE_F="a6d08e06-038a-4b32-84ae-b02e0f0f1140",FACE_M="99767950-9d68-4783-a305-9118006d3363",FACE={};
