@@ -130,19 +130,19 @@ const MEDIA={lounge:"lounge.webp",vsup:"vsup.webm"};const IMG=n=>MEDIA[n]||(n[0]
 const VID=n=>IMG("v"+n);
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
-{id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"impl",name:"المشاريع والتنفيذ"},
-{id:"fin",name:"المالية"},{id:"sup",name:"الدعم الفني"},{id:"sales",name:"المبيعات"},
+{id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات"},{id:"impl",name:"المشاريع والتنفيذ"},
+{id:"fin",name:"المالية"},{id:"sup",name:"الدعم الفني"},{id:"sec",name:"الأمن السيبراني"},{id:"sales",name:"المبيعات"},
 {id:"mkt",name:"التسويق"},{id:"gov",name:"الحكومية والقانونية"},{id:"lobby",name:"الاستقبال"},{id:"lounge",name:"ركن الاستراحة"}];
 // [id, name, role, dept, lead, x%, y%]  — x من اليسار، y مكان راس الموظف
 const STAFF=[
 ["hamad","حسام","مدير العمليات — يوزّع مهامك ويرجع بالتقرير","mgmt",1,87,33],
 ["shahd","منى","مديرة المكتب — التقويم والمتابعات","mgmt",0,32,30],
-["omar","عمر","تحليل البيانات — التقارير والداشبوردات والمؤشرات","mgmt",0,47,36],
+["omar","عمر","محلّل البيانات — التقارير والداشبوردات والمؤشرات","data",1,43,33],
 ["khaled","كريم","مدير المبيعات","sales",1,22,22],["reem","ياسمين","الليدز وتسجيلها","sales",0,42,44],["yousef","شريف","عروض الأسعار والعقود","sales",0,62,41],["noura","دينا","متابعة العملاء","sales",0,80,46],
 ["lina","رانيا","مديرة التسويق","mkt",1,24,22],["sara","سلمى","المحتوى والسوشيال","mkt",0,41,46],["fahad","حازم","الإعلانات الممولة","mkt",0,65,40],["majed","باسم","السيو والموقع","mkt",0,87,45],
 ["abdullah","عادل","المدير المالي","fin",1,24,24],["haya","هبة","الفواتير والمصروفات","fin",0,34,45],["dana","نهى","الرواتب","fin",0,66,41],["sultan","مدحت","التقارير والضريبة","fin",0,85,41],
-["tarek","هشام","مدير المشاريع","impl",1,24,24],["jood","مروة","المتطلبات وBRD","impl",0,38,51],["rakan","إسلام","إعداد أودو","impl",0,66,43],["lama","نورهان","التوثيق والتدريب","impl",0,89,49],
-["badr","تامر","مدير الدعم الفني","sup",1,28,23],["rahaf","شيماء","التذاكر","sup",0,38,42],["nayef","أشرف","ساعات الدعم","sup",0,68,41],["ziad","زياد","الأمن السيبراني — حماية السيرفرات ومنع الاختراق","sup",0,10,41],
+["tarek","هشام","مدير المشاريع","impl",1,25.4,33],["jood","مروة","المتطلبات وBRD","impl",0,48.4,40],["rakan","إسلام","إعداد أودو","impl",0,64.6,36],["lama","نورهان","التوثيق والتدريب","impl",0,85.8,41.5],
+["badr","تامر","مدير الدعم الفني","sup",1,28,23],["rahaf","شيماء","التذاكر","sup",0,38,42],["nayef","أشرف","ساعات الدعم","sup",0,68,41],["ziad","زياد","مسؤول الأمن السيبراني — حماية السيرفرات ومنع الاختراق","sec",1,47.5,33],
 ["nasser","جمال","مدير الشؤون الحكومية","gov",1,29,22],["waleed","أيمن","المنصات الحكومية","gov",0,47,33],["rima","إيمان","العقود والأرشيف","gov",0,69,34],
 ["nada","ندى","الاستقبال — المكالمات والزوار والمواعيد","lobby",1,54,46]
 ].map(([id,name,role,dept,lead,x,y])=>({id,name,role,dept,lead:!!lead,x,y}));
@@ -163,7 +163,7 @@ function deriveLive(){live={};const now=Date.now();
 
 function doors(){$("#doors").innerHTML=DEPTS.map(d=>{const ppl=STAFF.filter(p=>p.dept===d.id);const w=ppl.filter(p=>stOf(p.id)==="waiting").length;
  const counts=["working","waiting","done","idle"].map(s=>[s,ppl.filter(p=>stOf(p.id)===s).length]).filter(x=>x[1]);
- const label=d.id==="owner"?"مكتبك":d.id==="lobby"?"ندى — الاستقبال":d.id==="lounge"?"قهوة · بلياردو · بينج بونج · بلايستيشن":ppl.length+" موظفين";
+ const label=d.id==="owner"?"مكتبك":d.id==="lobby"?"ندى — الاستقبال":d.id==="lounge"?"قهوة · بلياردو · بينج بونج · بلايستيشن":(ppl.length===1?"مكتب "+ppl[0].name:ppl.length+" موظفين");
  return `<button class="door" data-d="${d.id}"><div class="ph" style="background-image:url('${IMG(d.id)}')"><video muted loop playsinline data-v="${d.id}"></video><span class="live">حي</span>${w?`<span class="alert">${w} مستنياك</span>`:""}<div class="plate"><b>${d.name}</b><span>${label}</span></div></div>
  <div class="meta">${ppl.length?counts.map(([s,n])=>`<span class="p"><span class="dot" style="background:${STC[s]}"></span>${n} ${ST[s]}</span>`).join(" · "):`<span class="p">${d.id==="owner"?"مكتب أحمد — المدير التنفيذي":d.id==="lounge"?"اللي خلّص شغله بيرتاح هنا":"أهلاً بيك في كورإكس"}</span>`}</div></button>`}).join("");
  document.querySelectorAll(".door").forEach(b=>b.onclick=()=>openRoom(b.dataset.d));document.querySelectorAll(".door video").forEach(v=>{const k=v.dataset.v;if(VC[k]){v.src=VC[k];v.classList.add("on");v.play().catch(()=>{})}})}
@@ -180,7 +180,7 @@ let NOPUSH=false;
 function closeRoom(){cur=null;$("#room").classList.remove("on");$("#corr").style.display="";if(!NOPUSH)history.replaceState(null,"",location.pathname+location.search.replace(/[?&]call=[^&]*/,""))}
 function goBack(){if(history.state&&history.state.room)history.back();else closeRoom()}
 addEventListener("popstate",()=>{NOPUSH=true;$("#drawer").classList.remove("on");const h=location.hash.slice(1);if(DEPTS.some(d=>d.id===h)){if(cur!==h)openRoom(h)}else closeRoom();NOPUSH=false});
-const INSET={omar:{l:38,t:30,img:"omar.jpg",lab:"مكتب عمر — تحليل البيانات"},ziad:{l:1,t:34,img:"ziad.jpg",lab:"مكتب زياد — الأمن السيبراني"}};
+const INSET={};
 function renderRoom(){if(!cur)return;const ppl=STAFF.filter(p=>p.dept===cur);
  $("#scene").querySelectorAll(".hs,.ins,.ins-l").forEach(e=>e.remove());
  for(const p of ppl){const q=INSET[p.id];if(!q)continue;const im=document.createElement("img");im.className="ins";im.src=q.img;im.alt=q.lab;im.style.cssText=`left:${q.l}%;top:${q.t}%`;im.onclick=()=>openP(p.id);$("#scene").appendChild(im);const lb=document.createElement("span");lb.className="ins-l";lb.textContent=q.lab;lb.style.cssText=`left:calc(${q.l}% + 8px);top:calc(${q.t}% + 20%)`;$("#scene").appendChild(lb)}
