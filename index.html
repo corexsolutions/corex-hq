@@ -230,7 +230,7 @@ async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!
  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
  catch(e){$("#cvs").disabled=false;cvState("المايك مقفول — اسمح للمايك من إعدادات المتصفح. لو فاتح من جوه تيليجرام، افتح الرابط في سفاري أو كروم.");return}
  let C;try{C=await loadEL()}catch(e){$("#cvs").disabled=false;cvState("مش قادر أحمّل المكالمة — اتأكد من النت وجرّب تاني.");return}
- cvState("بيجهّز الصورة…");simli=await startFace(id,isMonaF(id));const face=simli;cvState("بيتصل…");
+ cvState("بيجهّز الصورة…");simli=FACE[id]?await startFace(id,isMonaF(id)):null;const face=simli;cvState("بيتصل…");
  const isMona=id==="shahd";const opts={agentId:isMona?AG_MONA:(FEM.has(id)?AG_F:AG_M),dynamicVariables:{emp_name:p.name,emp_role:p.role,emp_dept:d?d.name:"",emp_tasks:mine},overrides:(!isMona&&VOICE[id])?{tts:{voiceId:VOICE[id]}}:undefined,
   onConnect:()=>{cvUI(true);cvState("متصل — اتكلم براحتك","listen")},
   onDisconnect:()=>{conv=null;if(simli){try{simli.stop()}catch(e){}simli=null;$("#cv").classList.remove("avt")}cvUI(false);$("#cvs").disabled=false;$("#cvs").textContent="📞 اتصل تاني";cvState("المكالمة خلصت. أي طلب قلته هيتسجل ويتنفذ.")},
