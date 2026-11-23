@@ -3,7 +3,7 @@
    locked to one employee's persona, voice and tools. */
 (function () {
   const WS = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained";
-  const WORKLET = "class P extends AudioWorkletProcessor{constructor(){super();this.b=new Int16Array(1600);this.n=0;this.on=true;this.port.onmessage=e=>{this.on=e.data}}" +
+  const WORKLET = "class P extends AudioWorkletProcessor{constructor(o){super();this.b=new Int16Array((o&&o.processorOptions&&o.processorOptions.n)||1600);this.n=0;this.on=true;this.port.onmessage=e=>{this.on=e.data}}" +
     "process(i){const c=i[0]&&i[0][0];if(!c)return true;for(let k=0;k<c.length;k++){const s=Math.max(-1,Math.min(1,c[k]));this.b[this.n++]=this.on?s*32767:0;if(this.n===this.b.length){this.port.postMessage(this.b.slice(0));this.n=0}}return true}}registerProcessor('cx-pcm16',P)";
   let inCtx = null, outCtx = null;
 
@@ -14,7 +14,7 @@
   function prepare() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return false;
-    try { if (!inCtx || inCtx.state === "closed") inCtx = new AC({ sampleRate: 16000 }); } catch (e) { inCtx = new AC(); }
+    if (!inCtx || inCtx.state === "closed") inCtx = new AC();
     try { if (!outCtx || outCtx.state === "closed") outCtx = new AC({ sampleRate: 24000 }); } catch (e) { outCtx = new AC(); }
     inCtx.resume().catch(() => {}); outCtx.resume().catch(() => {});
     return true;
@@ -25,9 +25,9 @@
     if (!inCtx || !outCtx) prepare();
     const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
     const url = URL.createObjectURL(new Blob([WORKLET], { type: "application/javascript" }));
-    await inCtx.audioWorklet.addModule(url);
+    if (!inCtx._cx) { await inCtx.audioWorklet.addModule(url); inCtx._cx = 1; }
     const src = inCtx.createMediaStreamSource(stream);
-    const node = new AudioWorkletNode(inCtx, "cx-pcm16");
+    const node = new AudioWorkletNode(inCtx, "cx-pcm16", { processorOptions: { n: Math.round(inCtx.sampleRate / 10) } });
     const sink = inCtx.createGain(); sink.gain.value = 0;
     src.connect(node); node.connect(sink); sink.connect(inCtx.destination);
     const rate = inCtx.sampleRate;
