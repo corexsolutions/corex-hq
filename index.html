@@ -182,8 +182,8 @@ function closeRoom(){cur=null;$("#room").classList.remove("on");$("#corr").style
 function goBack(){if(history.state&&history.state.room)history.back();else closeRoom()}
 addEventListener("popstate",()=>{NOPUSH=true;$("#drawer").classList.remove("on");const h=location.hash.slice(1);if(DEPTS.some(d=>d.id===h)){if(cur!==h)openRoom(h)}else closeRoom();NOPUSH=false});
 const INSET={};
-const LOGO={mgmt:{x:72.7,y:9.5,w:17,o:.92}};
-function renderBrand(id){const b=$("#brand");b.innerHTML="";const q=LOGO[id];if(!q)return;const im=document.createElement("img");im.src=q.white?"logo-white.png":"logo-dark.png";if(q.white)im.className="w";im.alt="CoreX";im.style.cssText=`left:${q.x}%;top:${q.y}%;width:${q.w}%;opacity:${q.o||.92}`+(q.r?`;transform:rotate(${q.r}deg) skewY(${q.k||0}deg)`:"");b.appendChild(im)}
+const LOGO={mgmt:{x:72.7,y:9.5,w:17,o:.92},owner:{x:79,y:24,w:17.5,o:.9,k:7},data:{x:41.7,y:12.5,w:16.7},impl:{x:41.7,y:15,w:18.75},fin:{x:85.4,y:9.2,w:13.5,white:1},sales:{x:85.4,y:9.2,w:13.5,white:1},sup:{x:41.7,y:11,w:18.75},mkt:{x:32.8,y:8.5,w:16.7},gov:{x:41.1,y:7.5,w:15.6},lobby:{x:53.1,y:20.5,w:15.6,o:.95},lounge:{x:48.4,y:22.5,w:15.6}};
+function renderBrand(id){const b=$("#brand");b.innerHTML="";const q=LOGO[id];if(!q)return;const im=document.createElement("img");im.src=q.white?"logo-white.png":"logo-dark.png";if(q.white)im.className="w";im.alt="CoreX";im.style.cssText=`left:${q.x}%;top:${q.y}%;width:${q.w}%;opacity:${q.o||.92}`+((q.r||q.k)?`;transform:rotate(${q.r||0}deg) skewY(${q.k||0}deg)`:"");b.appendChild(im)}
 function renderRoom(){if(!cur)return;const ppl=STAFF.filter(p=>p.dept===cur);
  $("#scene").querySelectorAll(".hs,.ins,.ins-l").forEach(e=>e.remove());
  for(const p of ppl){const q=INSET[p.id];if(!q)continue;const im=document.createElement("img");im.className="ins";im.src=q.img;im.alt=q.lab;im.style.cssText=`left:${q.l}%;top:${q.t}%`;im.onclick=()=>openP(p.id);$("#scene").appendChild(im);const lb=document.createElement("span");lb.className="ins-l";lb.textContent=q.lab;lb.style.cssText=`left:calc(${q.l}% + 8px);top:calc(${q.t}% + 20%)`;$("#scene").appendChild(lb)}
