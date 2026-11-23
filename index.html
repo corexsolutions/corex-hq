@@ -126,6 +126,7 @@ button.go:disabled{opacity:.5}
  <ul class="tl" id="dtasks"></ul>
 </div></div>
 
+<script src="glive.js?v=4"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
 const VER="20261123m";const VID=n=>IMG("v"+n)+"?v="+VER;
@@ -234,11 +235,27 @@ function callP(id){const p=STAFF.find(x=>x.id===id);if(!p)return;const d=DEPTS.f
  $("#drawer").classList.remove("on");$("#cva").textContent="";$("#cva").style.backgroundImage="url(av/"+id+".jpg)";$("#cvn").textContent=p.name;$("#cvr").textContent=p.role+(d?" — "+d.name:"");
  $("#cvtr").innerHTML="";cvUI(false);cvState("اضغط «ابدأ المكالمة» واسمح للمايك، وكلّم "+p.name+" بصوتك.");$("#cv").classList.add("on");
  history.pushState({room:cur,call:id},"",location.hash||"#");loadEL().catch(()=>{})}
+const LIVE_TOKEN="https://corex.app.n8n.cloud/webhook/hq-live-token";let gl=null;
+async function startGemini(id,p,d,mine){
+ const r=await fetch(LIVE_TOKEN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,name:p.name,role:p.role,dept:d?d.name:"",tasks:mine,staff:STAFF.map(x=>`${x.id}: ${x.name} — ${x.role}`).join("\n")})});
+ const j=await r.json();if(!j.token)throw new Error(j.error||"token");
+ let bub={u:null,a:null};const say=(role,t)=>{if(!bub[role]){bub[role]=document.createElement("div");bub[role].className="m "+role;$("#cvtr").appendChild(bub[role])}bub[role].textContent+=t;$("#cvtr").scrollTop=1e6};
+ return await new Promise((res,rej)=>{let ok=false;const to=setTimeout(()=>{if(!ok){try{g&&g.end()}catch(e){}rej(new Error("timeout"))}},15000);let g=null;
+  GLive.start({token:j.token,model:j.model,kick:"(المكالمة اتفتحت دلوقتي — سلّم على أستاذ أحمد باختصار)",
+   onOpen:()=>{ok=true;clearTimeout(to);cvUI(true);cvState("متصل — اتكلم براحتك","listen");res(g)},
+   onMode:m=>m==="speaking"?cvState(p.name+(isMonaF(id)?" بتتكلم…":" بيتكلم…"),"speak"):cvState("بيسمعك… اتكلم","listen"),
+   onText:say,onTurn:()=>{bub={u:null,a:null}},
+   onTool:async(name,a)=>{if(name!=="add_task")return"أداة مش معروفة";const as=STAFF.some(x=>x.id===a.assignee)?a.assignee:id;
+    const rr=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:String(a.title||"مهمة من مكالمة").slice(0,120),details:String(a.details||a.title||"")+"\n\n(اتسجلت من مكالمة صوتية مع "+p.name+")",assignee:as})});
+    if(!rr.ok)throw new Error("HTTP "+rr.status);setTimeout(load,1500);const w=STAFF.find(x=>x.id===as);return"اتسجلت المهمة باسم "+(w?w.name:as)},
+   onClose:(why,was)=>{gl=null;if(!ok){clearTimeout(to);rej(new Error(why));return}cvUI(false);$("#cvs").disabled=false;$("#cvs").textContent="📞 اتصل تاني";cvState("المكالمة خلصت. أي طلب قلته اتسجل وهيتنفذ.")}
+  }).then(x=>{g=x;if(ok)res(g)}).catch(e=>{clearTimeout(to);rej(e)})})}
 async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!p)return;const d=DEPTS.find(x=>x.id===p.dept);
  const mine=tasks.filter(t=>t.to===id).slice(0,6).map((t,i)=>`${i+1}) ${t.title} — ${PILL[t.status]||t.status}${t.report?": "+String(t.report).replace(/https?:\S+/g,"").slice(0,350):""}`).join("\n")||"مفيش مهام مسجلة لسه.";
- $("#cvs").disabled=true;cvState("بيتصل…");
+ $("#cvs").disabled=true;cvState("بيتصل…");const canG=!!(window.GLive&&GLive.prepare());
  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
  catch(e){$("#cvs").disabled=false;cvState("المايك مقفول — اسمح للمايك من إعدادات المتصفح. لو فاتح من جوه تيليجرام، افتح الرابط في سفاري أو كروم.");return}
+ if(canG){try{gl=await startGemini(id,p,d,mine);return}catch(e){console.log("GLive failed, falling back",e);gl=null;$("#cvtr").innerHTML="";cvState("بيتصل…")}}
  let C;try{C=await loadEL()}catch(e){$("#cvs").disabled=false;cvState("مش قادر أحمّل المكالمة — اتأكد من النت وجرّب تاني.");return}
  cvState("بيجهّز الصورة…");simli=FACE[id]?await startFace(id,isMonaF(id)):null;const face=simli;cvState("بيتصل…");
  const isMona=id==="shahd";const opts={agentId:isMona?AG_MONA:(FEM.has(id)?AG_F:AG_M),dynamicVariables:{emp_name:p.name,emp_role:p.role,emp_dept:d?d.name:"",emp_tasks:mine},overrides:(!isMona&&VOICE[id])?{tts:{voiceId:VOICE[id]}}:undefined,
@@ -252,10 +269,10 @@ async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!
  if(face){try{conv=await C.Conversation.startSession({...opts,connectionType:"websocket"});conv.setVolume({volume:0});return}catch(e0){console.log(e0);try{await face.stop()}catch(e){}simli=null;$("#cv").classList.remove("avt");delete opts.onAudio}}
  try{conv=await C.Conversation.startSession({...opts,connectionType:"webrtc"})}
  catch(e1){try{conv=await C.Conversation.startSession({...opts,connectionType:"websocket"})}catch(e2){$("#cvs").disabled=false;cvState("المكالمة ما اتفتحتش — جرّب تاني بعد شوية.");console.log(e1,e2)}}}
-async function endCall(){if(conv){try{await conv.endSession()}catch(e){}conv=null}if(simli){try{await simli.stop()}catch(e){}simli=null}$("#cv").classList.remove("avt")}
+async function endCall(){if(gl){try{gl.end()}catch(e){}gl=null}if(conv){try{await conv.endSession()}catch(e){}conv=null}if(simli){try{await simli.stop()}catch(e){}simli=null}$("#cv").classList.remove("avt")}
 function closeCall(){endCall();$("#cv").classList.remove("on");muted=false;$("#cvm").textContent="🔇 كتم"}
 $("#cvs").onclick=startCall;$("#cve").onclick=endCall;
-$("#cvm").onclick=()=>{if(!conv)return;muted=!muted;conv.setMicMuted(muted);$("#cvm").textContent=muted?"🎙️ افتح المايك":"🔇 كتم"};
+$("#cvm").onclick=()=>{if(!conv&&!gl)return;muted=!muted;if(gl)gl.mute(muted);else conv.setMicMuted(muted);$("#cvm").textContent=muted?"🎙️ افتح المايك":"🔇 كتم"};
 $("#cvx").onclick=()=>{if(history.state&&history.state.call)history.back();else closeCall()};
 addEventListener("popstate",()=>{if($("#cv").classList.contains("on")&&!(history.state&&history.state.call))closeCall()});
 document.getElementById("dcall").onclick=()=>{if(curP)callP(curP)};
