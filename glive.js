@@ -32,12 +32,12 @@
     src.connect(node); node.connect(sink); sink.connect(inCtx.destination);
     const rate = inCtx.sampleRate;
 
-    let ready = false, closed = false, playHead = 0, playing = [], speaking = false, lastRole = null;
+    let idleT = 0, ready = false, closed = false, playHead = 0, playing = [], speaking = false, lastRole = null;
     const ws = new WebSocket(WS + "?access_token=" + encodeURIComponent(o.token));
     const send = m => { if (ws.readyState === 1) ws.send(JSON.stringify(m)); };
 
     function setSpeaking(v) { if (v !== speaking) { speaking = v; o.onMode && o.onMode(v ? "speaking" : "listening"); } }
-    function stopAudio() { playing.forEach(s => { try { s.stop(); } catch (e) {} }); playing = []; playHead = 0; setSpeaking(false); }
+    function stopAudio() { clearTimeout(idleT); playing.forEach(s => { try { s.stop(); } catch (e) {} }); playing = []; playHead = 0; setSpeaking(false); }
     function play(pcm) {
       const n = pcm.length >> 1, f = new Float32Array(n), dv = new DataView(pcm.buffer, pcm.byteOffset, pcm.byteLength);
       for (let i = 0; i < n; i++) f[i] = dv.getInt16(i * 2, true) / 32768;
@@ -45,6 +45,7 @@
       const s = outCtx.createBufferSource(); s.buffer = buf; s.connect(outCtx.destination);
       const t = Math.max(outCtx.currentTime + 0.03, playHead); s.start(t); playHead = t + buf.duration;
       playing.push(s); setSpeaking(true);
+      clearTimeout(idleT); idleT = setTimeout(function chk() { const left = playHead - outCtx.currentTime; if (left > 0.05) idleT = setTimeout(chk, left * 1000 + 60); else { playing = []; setSpeaking(false); } }, (playHead - outCtx.currentTime) * 1000 + 60);
       s.onended = () => { playing = playing.filter(x => x !== s); if (!playing.length && outCtx.currentTime >= playHead - 0.05) setSpeaking(false); };
     }
     function text(role, chunk) { if (!chunk) return; if (lastRole && lastRole !== role) o.onTurn && o.onTurn(); lastRole = role; o.onText && o.onText(role, chunk); }
