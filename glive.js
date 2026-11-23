@@ -50,7 +50,12 @@
     }
     function text(role, chunk) { if (!chunk) return; if (lastRole && lastRole !== role) o.onTurn && o.onTurn(); lastRole = role; o.onText && o.onText(role, chunk); }
 
-    node.port.onmessage = e => { if (ready) send({ realtimeInput: { audio: { data: b64(e.data.buffer), mimeType: "audio/pcm;rate=" + rate } } }); };
+    // Echo guard: speakers leak the employee's own voice into the mic and the model
+    // takes it as the user talking and stops. While the employee speaks (plus a short
+    // tail for room echo) the mic is not sent.
+    const TAIL = 0.45;
+    const echoing = () => speaking || playing.length > 0 || outCtx.currentTime < playHead + TAIL;
+    node.port.onmessage = e => { if (ready && !echoing()) send({ realtimeInput: { audio: { data: b64(e.data.buffer), mimeType: "audio/pcm;rate=" + rate } } }); };
 
     ws.onopen = () => send({ setup: { model: o.model } });
     ws.onmessage = async ev => {
