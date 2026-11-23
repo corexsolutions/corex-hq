@@ -130,7 +130,7 @@ button.go:disabled{opacity:.5}
 <script src="glive.js?v=7"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
-const VER="20261123m";const VID=n=>IMG("v"+n)+"?v="+VER;
+const VER="20261123n";const VID=n=>IMG("v"+n)+"?v="+VER;
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
 {id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات والأمن السيبراني"},{id:"impl",name:"المشاريع والتنفيذ"},
