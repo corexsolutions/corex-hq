@@ -128,7 +128,7 @@ button.go:disabled{opacity:.5}
 
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg");
-const VER="20261123b";const VID=n=>IMG("v"+n)+"?v="+VER;
+const VER="20261123c";const VID=n=>IMG("v"+n)+"?v="+VER;
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
 {id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات والأمن السيبراني"},{id:"impl",name:"المشاريع والتنفيذ"},
@@ -182,7 +182,7 @@ function closeRoom(){cur=null;$("#room").classList.remove("on");$("#corr").style
 function goBack(){if(history.state&&history.state.room)history.back();else closeRoom()}
 addEventListener("popstate",()=>{NOPUSH=true;$("#drawer").classList.remove("on");const h=location.hash.slice(1);if(DEPTS.some(d=>d.id===h)){if(cur!==h)openRoom(h)}else closeRoom();NOPUSH=false});
 const INSET={};
-const LOGO={owner:{x:77,y:12,w:19,k:7,d3:1},data:{x:43.2,y:4.5,w:13.5,d3:1,bk:1},impl:{x:39.5,y:5,w:20,d3:1,bk:1},sup:{x:41,y:4,w:17,d3:1,bk:1},gov:{x:40.5,y:4,w:15,d3:1,bk:1},lobby:{x:54.4,y:15.5,w:13,d3:1,bk:1,src:"logo-3d-lobby.png"},lounge:{x:72.5,y:19.5,w:15,d3:1,bk:1}};
+const LOGO={owner:{x:80,y:11,w:15,k:7,d3:1,bk:1},data:{x:43.2,y:4.5,w:13.5,d3:1,bk:1},impl:{x:39.5,y:5,w:20,d3:1,bk:1},sup:{x:41,y:4,w:17,d3:1,bk:1},gov:{x:40.5,y:4,w:15,d3:1,bk:1},lobby:{x:54.4,y:15.5,w:13,d3:1,bk:1,src:"logo-3d-lobby.png"},lounge:{x:72.5,y:19.5,w:15,d3:1,bk:1}};
 function LG(q){if(q.d3){const f=1026/870,ox=78/870*q.w;return{src:q.src||"logo-3d.png",cls:"d3"+(q.bk?" bk":""),x:q.x-ox,y:q.y-ox*16/9,w:q.w*f,o:1}}if(q.pn)return{src:"logo-white.png",cls:"pn",x:q.x,y:q.y,w:q.w,o:1};return{src:q.white?"logo-white.png":"logo-dark.png",cls:q.white?"w":"",x:q.x,y:q.y,w:q.w,o:q.o||.92}}
 function renderBrand(id){const b=$("#brand");b.innerHTML="";const q=LOGO[id];b.classList.toggle("bk",!!(q&&q.bk));if(!q)return;const im=document.createElement("img");const g=LG(q);im.src=g.src;if(g.cls)im.className=g.cls;im.alt="CoreX";im.style.cssText=`left:${g.x}%;top:${g.y}%;width:${g.w}%;opacity:${g.o}`+((q.r||q.k)?`;transform:rotate(${q.r||0}deg) skewY(${q.k||0}deg)`:"");b.appendChild(im)}
 function renderRoom(){if(!cur)return;const ppl=STAFF.filter(p=>p.dept===cur);
