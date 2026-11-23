@@ -43,7 +43,7 @@ h2{font-family:var(--display);font-size:20px;margin:0}
 .scene video{position:absolute;inset:0;height:100%;opacity:0;transition:opacity .6s}
 .scene video.on{opacity:1}
 .door .ph video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s}
-.door .ph video.on{opacity:1}
+.door .ph video.on{opacity:1}.door .ph img.dlogo{position:absolute;height:auto;z-index:1;pointer-events:none;filter:drop-shadow(0 0 3px rgba(255,255,255,.85))}.door .ph img.dlogo.w{filter:drop-shadow(0 0 3px rgba(126,90,158,.8))}
 .live{position:absolute;top:10px;right:10px;z-index:2;background:rgba(0,0,0,.55);color:#fff;font-size:11px;border-radius:999px;padding:1px 9px;display:none}
 .live::before{content:"● ";color:#ff4d4d}
 .on+.live,.ph video.on~.live{display:block}
@@ -165,7 +165,7 @@ function deriveLive(){live={};const now=Date.now();
 function doors(){$("#doors").innerHTML=DEPTS.map(d=>{const ppl=STAFF.filter(p=>p.dept===d.id);const w=ppl.filter(p=>stOf(p.id)==="waiting").length;
  const counts=["working","waiting","done","idle"].map(s=>[s,ppl.filter(p=>stOf(p.id)===s).length]).filter(x=>x[1]);
  const label=d.id==="owner"?"مكتبك":d.id==="lobby"?"ندى — الاستقبال":d.id==="lounge"?"قهوة · بلياردو · بينج بونج · بلايستيشن":(ppl.length===1?"مكتب "+ppl[0].name:ppl.length+" موظفين");
- return `<button class="door" data-d="${d.id}"><div class="ph" style="background-image:url('${IMG(d.id)}')"><video muted loop playsinline data-v="${d.id}"></video><span class="live">حي</span>${w?`<span class="alert">${w} مستنياك</span>`:""}<div class="plate"><b>${d.name}</b><span>${label}</span></div></div>
+ return `<button class="door" data-d="${d.id}"><div class="ph" style="background-image:url('${IMG(d.id)}')"><video muted loop playsinline data-v="${d.id}"></video>${LOGO[d.id]?`<img class="dlogo${LOGO[d.id].white?" w":""}" src="${LOGO[d.id].white?"logo-white.png":"logo-dark.png"}" alt="" style="left:${LOGO[d.id].x}%;top:${LOGO[d.id].y}%;width:${LOGO[d.id].w}%;opacity:${LOGO[d.id].o||.92}${LOGO[d.id].k?`;transform:skewY(${LOGO[d.id].k}deg)`:""}">`:""}<span class="live">حي</span>${w?`<span class="alert">${w} مستنياك</span>`:""}<div class="plate"><b>${d.name}</b><span>${label}</span></div></div>
  <div class="meta">${ppl.length?counts.map(([s,n])=>`<span class="p"><span class="dot" style="background:${STC[s]}"></span>${n} ${ST[s]}</span>`).join(" · "):`<span class="p">${d.id==="owner"?"مكتب أحمد — المدير التنفيذي":d.id==="lounge"?"اللي خلّص شغله بيرتاح هنا":"أهلاً بيك في كورإكس"}</span>`}</div></button>`}).join("");
  document.querySelectorAll(".door").forEach(b=>b.onclick=()=>openRoom(b.dataset.d));document.querySelectorAll(".door video").forEach(v=>{const k=v.dataset.v;if(VC[k]){v.src=VC[k];v.classList.add("on");v.play().catch(()=>{})}})}
 const VC={};function probe(k,v){VC[k]=false;fetch(VID(k)).then(r=>r.blob()).then(b=>{if(!/^video/.test(b.type))return;VC[k]=URL.createObjectURL(b);document.querySelectorAll(`.door video[data-v="${k}"]`).forEach(x=>{x.src=VC[k];x.classList.add("on");x.play().catch(()=>{})});if(cur===k)playV($("#rvid"),VC[k])}).catch(()=>{})}
