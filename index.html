@@ -130,7 +130,7 @@ button.go:disabled{opacity:.5}
 <script src="glive.js?v=8"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
-const VER="20261124a";const VID=n=>IMG("v"+n)+"?v="+VER;
+const VER="20261124b";const VID=n=>IMG("v"+n)+"?v="+VER;
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
 {id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات والأمن السيبراني"},{id:"impl",name:"المشاريع والتنفيذ"},
@@ -253,7 +253,7 @@ async function startGemini(id,p,d,mine){
   }).then(x=>{g=x;if(ok)res(g)}).catch(e=>{clearTimeout(to);rej(e)})})}
 async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!p)return;const d=DEPTS.find(x=>x.id===p.dept);
  const mine=tasks.filter(t=>t.to===id).slice(0,6).map((t,i)=>`${i+1}) ${t.title} — ${PILL[t.status]||t.status}${t.report?": "+String(t.report).replace(/https?:\S+/g,"").slice(0,350):""}`).join("\n")||"مفيش مهام مسجلة لسه.";
- $("#cvs").disabled=true;cvState("بيتصل…");const canG=/[?&]engine=g/.test(location.search)&&!!(window.GLive&&GLive.prepare());
+ $("#cvs").disabled=true;cvState("بيتصل…");const canG=!/[?&]engine=e/.test(location.search)&&!!(window.GLive&&GLive.prepare());
  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
  catch(e){$("#cvs").disabled=false;cvState("المايك مقفول — اسمح للمايك من إعدادات المتصفح. لو فاتح من جوه تيليجرام، افتح الرابط في سفاري أو كروم.");return}
  if(canG){try{gl=await startGemini(id,p,d,mine);return}catch(e){console.log("GLive failed, falling back",e);gl=null;$("#cvtr").innerHTML="";cvState("بيتصل…")}}
