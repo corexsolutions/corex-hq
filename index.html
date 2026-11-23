@@ -130,7 +130,7 @@ button.go:disabled{opacity:.5}
 <script src="glive.js?v=8"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
-const VER="20261123p";const VID=n=>IMG("v"+n)+"?v="+VER;
+const VER="20261124a";const VID=n=>IMG("v"+n)+"?v="+VER;
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
 {id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات والأمن السيبراني"},{id:"impl",name:"المشاريع والتنفيذ"},
@@ -253,7 +253,7 @@ async function startGemini(id,p,d,mine){
   }).then(x=>{g=x;if(ok)res(g)}).catch(e=>{clearTimeout(to);rej(e)})})}
 async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!p)return;const d=DEPTS.find(x=>x.id===p.dept);
  const mine=tasks.filter(t=>t.to===id).slice(0,6).map((t,i)=>`${i+1}) ${t.title} — ${PILL[t.status]||t.status}${t.report?": "+String(t.report).replace(/https?:\S+/g,"").slice(0,350):""}`).join("\n")||"مفيش مهام مسجلة لسه.";
- $("#cvs").disabled=true;cvState("بيتصل…");const canG=!!(window.GLive&&GLive.prepare());
+ $("#cvs").disabled=true;cvState("بيتصل…");const canG=/[?&]engine=g/.test(location.search)&&!!(window.GLive&&GLive.prepare());
  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
  catch(e){$("#cvs").disabled=false;cvState("المايك مقفول — اسمح للمايك من إعدادات المتصفح. لو فاتح من جوه تيليجرام، افتح الرابط في سفاري أو كروم.");return}
  if(canG){try{gl=await startGemini(id,p,d,mine);return}catch(e){console.log("GLive failed, falling back",e);gl=null;$("#cvtr").innerHTML="";cvState("بيتصل…")}}
@@ -267,15 +267,15 @@ async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!
   onError:e=>console.log("EL",e)};
  if(face){opts.onAudio=b=>{try{const u=b64u8(b);for(let i=0;i<u.length;i+=6000)face.sendAudioData(u.subarray(i,i+6000))}catch(e){}};opts.onInterruption=()=>{try{face.ClearBuffer()}catch(e){}};
   const oc=opts.onConnect;opts.onConnect=a=>{oc(a);const mute=()=>conv?conv.setVolume({volume:0}):setTimeout(mute,10);mute()}}
- if(face){try{conv=await C.Conversation.startSession({...opts,connectionType:"websocket"});conv.setVolume({volume:0});return}catch(e0){console.log(e0);try{await face.stop()}catch(e){}simli=null;$("#cv").classList.remove("avt");delete opts.onAudio}}
+ if(face){try{conv=await C.Conversation.startSession({...opts,connectionType:"websocket"});try{conv.setVolume({volume:0.6})}catch(e){};conv.setVolume({volume:0});return}catch(e0){console.log(e0);try{await face.stop()}catch(e){}simli=null;$("#cv").classList.remove("avt");delete opts.onAudio}}
  try{conv=await C.Conversation.startSession({...opts,connectionType:"webrtc"})}
- catch(e1){try{conv=await C.Conversation.startSession({...opts,connectionType:"websocket"})}catch(e2){$("#cvs").disabled=false;cvState("المكالمة ما اتفتحتش — جرّب تاني بعد شوية.");console.log(e1,e2)}}}
+ catch(e1){try{conv=await C.Conversation.startSession({...opts,connectionType:"websocket"});try{conv.setVolume({volume:0.6})}catch(e){}}catch(e2){$("#cvs").disabled=false;cvState("المكالمة ما اتفتحتش — جرّب تاني بعد شوية.");console.log(e1,e2)}}}
 async function endCall(){if(gl){try{gl.end()}catch(e){}gl=null}if(conv){try{await conv.endSession()}catch(e){}conv=null}if(simli){try{await simli.stop()}catch(e){}simli=null}$("#cv").classList.remove("avt")}
 function closeCall(){endCall();$("#cv").classList.remove("on");muted=false;$("#cvm").textContent="🔇 كتم"}
 $("#cvs").onclick=startCall;$("#cve").onclick=endCall;
-let ptt=false;const pttSet=v=>{ptt=v;$("#cvp").textContent=v?"🔈 وضع عادي":"🔊 وضع الدوشة";$("#cvh").hidden=!v;if(gl)gl.mute(v||muted)};
-$("#cvp").onclick=()=>{if(gl)pttSet(!ptt)};
-const hold=on=>e=>{e.preventDefault();if(gl&&ptt&&!muted){gl.mute(!on);$("#cvh").classList.toggle("on",on)}};
+let ptt=false;const pttSet=v=>{ptt=v;$("#cvp").textContent=v?"🔈 وضع عادي":"🔊 وضع الدوشة";$("#cvh").hidden=!v;if(gl)gl.mute(v||muted);else if(conv)try{conv.setMicMuted(v||muted)}catch(e){}};
+$("#cvp").onclick=()=>{if(gl||conv)pttSet(!ptt)};
+const hold=on=>e=>{e.preventDefault();if((gl||conv)&&ptt&&!muted){if(gl)gl.mute(!on);else try{conv.setMicMuted(!on)}catch(x){};$("#cvh").classList.toggle("on",on)}};
 ["pointerdown","touchstart"].forEach(ev=>$("#cvh").addEventListener(ev,hold(true),{passive:false}));["pointerup","pointerleave","pointercancel","touchend"].forEach(ev=>$("#cvh").addEventListener(ev,hold(false),{passive:false}));
 $("#cvm").onclick=()=>{if(!conv&&!gl)return;muted=!muted;if(gl)gl.mute(muted);else conv.setMicMuted(muted);$("#cvm").textContent=muted?"🎙️ افتح المايك":"🔇 كتم"};
 $("#cvx").onclick=()=>{if(history.state&&history.state.call)history.back();else closeCall()};
