@@ -126,7 +126,7 @@ button.go:disabled{opacity:.5}
  <ul class="tl" id="dtasks"></ul>
 </div></div>
 
-<script src="glive.js?v=3"></script>
+<script src="glive.js?v=4"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
 const VER="20261123m";const VID=n=>IMG("v"+n)+"?v="+VER;
@@ -243,7 +243,7 @@ async function startGemini(id,p,d,mine){
  return await new Promise((res,rej)=>{let ok=false;const to=setTimeout(()=>{if(!ok){try{g&&g.end()}catch(e){}rej(new Error("timeout"))}},15000);let g=null;
   GLive.start({token:j.token,model:j.model,kick:"(المكالمة اتفتحت دلوقتي — سلّم على أستاذ أحمد باختصار)",
    onOpen:()=>{ok=true;clearTimeout(to);cvUI(true);cvState("متصل — اتكلم براحتك","listen");res(g)},
-   onMode:m=>m==="speaking"?cvState(p.name+" بيتكلم…","speak"):cvState("بيسمعك… اتكلم","listen"),
+   onMode:m=>m==="speaking"?cvState(p.name+(isMonaF(id)?" بتتكلم…":" بيتكلم…"),"speak"):cvState("بيسمعك… اتكلم","listen"),
    onText:say,onTurn:()=>{bub={u:null,a:null}},
    onTool:async(name,a)=>{if(name!=="add_task")return"أداة مش معروفة";const as=STAFF.some(x=>x.id===a.assignee)?a.assignee:id;
     const rr=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:String(a.title||"مهمة من مكالمة").slice(0,120),details:String(a.details||a.title||"")+"\n\n(اتسجلت من مكالمة صوتية مع "+p.name+")",assignee:as})});
