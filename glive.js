@@ -3,8 +3,14 @@
    locked to one employee's persona, voice and tools. */
 (function () {
   const WS = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained";
-  const WORKLET = "class P extends AudioWorkletProcessor{constructor(o){super();this.b=new Int16Array((o&&o.processorOptions&&o.processorOptions.n)||1600);this.n=0;this.on=true;this.port.onmessage=e=>{this.on=e.data}}" +
-    "process(i){const c=i[0]&&i[0][0];if(!c)return true;for(let k=0;k<c.length;k++){const s=Math.max(-1,Math.min(1,c[k]));this.b[this.n++]=this.on?s*32767:0;if(this.n===this.b.length){this.port.postMessage(this.b.slice(0));this.n=0}}return true}}registerProcessor('cx-pcm16',P)";
+  // Mic worklet: PCM16 chunks of ~100 ms with a noise gate. The gate learns the
+  // room's background level and only lets through sound clearly louder than it
+  // (the close voice of the person holding the phone), so a noisy room or people
+  // talking further away are sent as silence.
+  const WORKLET = "class P extends AudioWorkletProcessor{constructor(o){super();const q=(o&&o.processorOptions)||{};this.b=new Int16Array(q.n||1600);this.n=0;this.on=true;this.fl=0.008;this.h=0;this.ss=0;this.port.onmessage=e=>{this.on=e.data}}" +
+    "process(i){const c=i[0]&&i[0][0];if(!c)return true;for(let k=0;k<c.length;k++){const s=Math.max(-1,Math.min(1,c[k]));this.ss+=s*s;this.b[this.n++]=s*32767;if(this.n===this.b.length){const r=Math.sqrt(this.ss/this.n);this.ss=0;" +
+    "if(r<this.fl*1.5)this.fl=this.fl*0.85+r*0.15;else this.fl=this.fl*0.998+r*0.002;const open=r>Math.max(0.012,this.fl*2.4);if(open)this.h=7;else if(this.h>0)this.h--;" +
+    "if(!this.on||this.h===0)this.b.fill(0);this.port.postMessage(this.b.slice(0));this.n=0}}return true}}registerProcessor('cx-pcm16',P)";
   let inCtx = null, outCtx = null;
 
   function b64(buf) { const u = new Uint8Array(buf); let s = ""; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
@@ -25,7 +31,7 @@
     if (!inCtx || !outCtx) prepare();
     const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
     const url = URL.createObjectURL(new Blob([WORKLET], { type: "application/javascript" }));
-    if (!inCtx._cx) { await inCtx.audioWorklet.addModule(url); inCtx._cx = 1; }
+    if (inCtx._cx !== 2) { await inCtx.audioWorklet.addModule(url); inCtx._cx = 2; }
     const src = inCtx.createMediaStreamSource(stream);
     const node = new AudioWorkletNode(inCtx, "cx-pcm16", { processorOptions: { n: Math.round(inCtx.sampleRate / 10) } });
     const sink = inCtx.createGain(); sink.gain.value = 0;
