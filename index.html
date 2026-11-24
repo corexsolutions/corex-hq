@@ -128,7 +128,7 @@ button.go:disabled{opacity:.5}
 </div></div>
 
 <script>
-const HQK=(()=>{let k="";try{const u=new URL(location.href);k=u.searchParams.get("k")||"";if(k){try{localStorage.setItem("hqk",k)}catch(e){}u.searchParams.delete("k");history.replaceState(null,"",u.pathname+u.search+u.hash)}else{try{k=localStorage.getItem("hqk")||""}catch(e){}}}catch(e){}return k})();
+const HQK=(()=>{let k="";const ck=()=>{const m=document.cookie.match(/(?:^|; )hqk=([^;]+)/);return m?decodeURIComponent(m[1]):""};try{const u=new URL(location.href);k=u.searchParams.get("k")||"";if(!k){try{k=localStorage.getItem("hqk")||""}catch(e){}}if(!k)k=ck();if(k){try{localStorage.setItem("hqk",k)}catch(e){}try{document.cookie="hqk="+encodeURIComponent(k)+"; max-age=31536000; path=/corex-hq/; secure; samesite=lax"}catch(e){}if(!u.searchParams.get("k")){u.searchParams.set("k",k);history.replaceState(null,"",u.pathname+u.search+u.hash)}}}catch(e){}return k})();
 (()=>{const f=window.fetch.bind(window);window.fetch=(u,o)=>{try{if(typeof u==="string"&&u.indexOf("corex.app.n8n.cloud/webhook/")>-1&&HQK)u+=(u.indexOf("?")>-1?"&":"?")+"k="+encodeURIComponent(HQK)}catch(e){}return f(u,o)}})();
 function hqLock(){if(document.getElementById("hqlock"))return;const d=document.createElement("div");d.id="hqlock";d.style.cssText="position:fixed;inset:0;z-index:99999;background:#120d1c;color:#f1edf8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;font-family:Tajawal,system-ui,sans-serif";d.innerHTML='<div style="font-size:54px">🔒</div><h2 style="margin:0;font-size:1.5rem">مقر كورإكس خاص بالمدير التنفيذي</h2><p style="margin:0;opacity:.8;max-width:420px;line-height:1.8">الجهاز ده مش متفعّل. المقر بيفتح بس على أجهزة المدير التنفيذي المتفعّلة.</p>';document.body.appendChild(d);document.body.style.overflow="hidden"}
 if(!HQK){if(document.body)hqLock();else document.addEventListener("DOMContentLoaded",hqLock)}
@@ -136,7 +136,7 @@ if(!HQK){if(document.body)hqLock();else document.addEventListener("DOMContentLoa
 <script src="glive.js?v=12"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
-const VER="20261125b";const VID=n=>IMG("v"+n)+"?v="+VER;
+const VER="20261125c";const VID=n=>IMG("v"+n)+"?v="+VER;
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
 {id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات والأمن السيبراني"},{id:"impl",name:"المشاريع والتنفيذ"},
@@ -297,7 +297,7 @@ $("#to").innerHTML=DEPTS.filter(d=>STAFF.some(p=>p.dept===d.id)).map(d=>`<optgro
 function renderLog(){const ol=$("#log");if(!tasks.length){ol.innerHTML=`<li class="hint">مفيش مهام لسه.</li>`;return}
  ol.innerHTML=tasks.slice(0,30).map(t=>{const p=STAFF.find(x=>x.id===t.to);return `<li><span class="pill p-${esc(t.status)}">${PILL[t.status]||esc(t.status)}</span><span class="t"><strong>${p?esc(p.name):"—"}:</strong> ${esc(t.title)}</span><span class="when">${fmt(t.updatedAt||t.createdAt)}</span></li>`}).join("")}
 function all(){deriveLive();doors();chips();renderRoom();renderLog()}
-async function load(){try{const r=await fetch(API,{cache:"no-store"});if(!r.ok)throw 0;const rows=await r.json();const list=Array.isArray(rows)?rows:(rows.data||[]);if(!list.some(x=>x&&x.id!=null)){try{localStorage.removeItem("hqk")}catch(e){}hqLock();return}
+async function load(){try{const r=await fetch(API,{cache:"no-store"});if(!r.ok)throw 0;const rows=await r.json();const list=Array.isArray(rows)?rows:(rows.data||[]);if(!list.some(x=>x&&x.id!=null)){hqLock();return}
  tasks=list.filter(x=>x&&x.id!=null).map(x=>({id:x.id,title:x.title||"",to:x.assignee||"",status:x.status||"new",report:x.report||"",createdAt:x.createdAt,updatedAt:x.updatedAt})).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
  all();$("#conn").textContent="متصل — بيتحدث كل 10 دقايق • آخر تحديث "+new Date().toLocaleTimeString("ar-EG-u-nu-latn",{hour:"2-digit",minute:"2-digit"})}
  catch(e){$("#conn").textContent="مش قادر أتصل بالمقر دلوقتي، هحاول تاني تلقائي."}}
