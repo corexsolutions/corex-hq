@@ -14,15 +14,15 @@
   let inCtx = null, outCtx = null, og = null;
   // Employees play softer and warmer: lower level, highs (sibilance/harshness) cut,
   // a little body in the low-mids, and a gentle compressor so no word jumps out loud.
-  const OUT_VOL = 0.42;
+  const OUT_VOL = 0.36;
   function outGain() {
     if (og && og.context === outCtx) return og;
     const c = outCtx;
     og = c.createGain(); og.gain.value = OUT_VOL;
     const hp = c.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 90;          // rumble / hum
     const warm = c.createBiquadFilter(); warm.type = "lowshelf"; warm.frequency.value = 260; warm.gain.value = 2.5;
-    const soft = c.createBiquadFilter(); soft.type = "highshelf"; soft.frequency.value = 3200; soft.gain.value = -7;
-    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 6500; lp.Q.value = 0.5;
+    const soft = c.createBiquadFilter(); soft.type = "highshelf"; soft.frequency.value = 2800; soft.gain.value = -9;
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 5500; lp.Q.value = 0.5;
     const comp = c.createDynamicsCompressor(); comp.threshold.value = -26; comp.knee.value = 18; comp.ratio.value = 3.5; comp.attack.value = 0.01; comp.release.value = 0.25;
     og.connect(hp); hp.connect(warm); warm.connect(soft); soft.connect(lp); lp.connect(comp); comp.connect(c.destination);
     return og;
@@ -68,7 +68,8 @@
       if (fresh) { const fi = Math.min(n, 960); for (let i = 0; i < fi; i++) f[i] *= i / fi; }
       const buf = outCtx.createBuffer(1, n, 24000); buf.copyToChannel(f, 0);
       const s = outCtx.createBufferSource(); s.buffer = buf; s.connect(outGain());
-      const t = Math.max(outCtx.currentTime + (fresh ? 0.15 : 0.03), playHead); s.start(t); playHead = t + buf.duration;
+      // Keep ~250 ms of audio queued so late network chunks never leave gaps (gaps = crackle).
+      const t = Math.max(outCtx.currentTime + (fresh ? 0.25 : 0.12), playHead); s.start(t); playHead = t + buf.duration;
       playing.push(s); setSpeaking(true);
       clearTimeout(idleT); idleT = setTimeout(function chk() { const left = playHead - outCtx.currentTime; if (left > 0.05) idleT = setTimeout(chk, left * 1000 + 60); else { playing = []; setSpeaking(false); } }, (playHead - outCtx.currentTime) * 1000 + 60);
       s.onended = () => { playing = playing.filter(x => x !== s); if (!playing.length && outCtx.currentTime >= playHead - 0.05) setSpeaking(false); };

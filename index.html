@@ -133,10 +133,10 @@ const HQK=(()=>{let k="";try{const u=new URL(location.href);k=u.searchParams.get
 function hqLock(){if(document.getElementById("hqlock"))return;const d=document.createElement("div");d.id="hqlock";d.style.cssText="position:fixed;inset:0;z-index:99999;background:#120d1c;color:#f1edf8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;font-family:Tajawal,system-ui,sans-serif";d.innerHTML='<div style="font-size:54px">🔒</div><h2 style="margin:0;font-size:1.5rem">مقر كورإكس خاص بالمدير التنفيذي</h2><p style="margin:0;opacity:.8;max-width:420px;line-height:1.8">الجهاز ده مش متفعّل. المقر بيفتح بس على أجهزة المدير التنفيذي المتفعّلة.</p>';document.body.appendChild(d);document.body.style.overflow="hidden"}
 if(!HQK){if(document.body)hqLock();else document.addEventListener("DOMContentLoaded",hqLock)}
 </script>
-<script src="glive.js?v=9"></script>
+<script src="glive.js?v=10"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
-const VER="20261124d";const VID=n=>IMG("v"+n)+"?v="+VER;
+const VER="20261124e";const VID=n=>IMG("v"+n)+"?v="+VER;
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
 {id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات والأمن السيبراني"},{id:"impl",name:"المشاريع والتنفيذ"},
