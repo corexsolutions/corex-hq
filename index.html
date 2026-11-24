@@ -133,10 +133,10 @@ const HQK=(()=>{let k="";try{const u=new URL(location.href);k=u.searchParams.get
 function hqLock(){if(document.getElementById("hqlock"))return;const d=document.createElement("div");d.id="hqlock";d.style.cssText="position:fixed;inset:0;z-index:99999;background:#120d1c;color:#f1edf8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;font-family:Tajawal,system-ui,sans-serif";d.innerHTML='<div style="font-size:54px">🔒</div><h2 style="margin:0;font-size:1.5rem">مقر كورإكس خاص بالمدير التنفيذي</h2><p style="margin:0;opacity:.8;max-width:420px;line-height:1.8">الجهاز ده مش متفعّل. المقر بيفتح بس على أجهزة المدير التنفيذي المتفعّلة.</p>';document.body.appendChild(d);document.body.style.overflow="hidden"}
 if(!HQK){if(document.body)hqLock();else document.addEventListener("DOMContentLoaded",hqLock)}
 </script>
-<script src="glive.js?v=10"></script>
+<script src="glive.js?v=11"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
-const VER="20261124e";const VID=n=>IMG("v"+n)+"?v="+VER;
+const VER="20261124f";const VID=n=>IMG("v"+n)+"?v="+VER;
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
 {id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات والأمن السيبراني"},{id:"impl",name:"المشاريع والتنفيذ"},
@@ -246,7 +246,7 @@ const LIVE_TOKEN="https://corex.app.n8n.cloud/webhook/hq-live-token";let gl=null
 async function startGemini(id,p,d,mine){
  const r=await fetch(LIVE_TOKEN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,name:p.name,role:p.role,dept:d?d.name:"",tasks:mine,staff:STAFF.map(x=>`${x.id}: ${x.name} — ${x.role}`).join("\n")})});
  const j=await r.json();if(!j.token)throw new Error(j.error||"token");
- let bub={u:null,a:null};const say=(role,t)=>{if(!bub[role]){bub[role]=document.createElement("div");bub[role].className="m "+role;$("#cvtr").appendChild(bub[role])}bub[role].textContent+=t;$("#cvtr").scrollTop=1e6};
+ let bub={u:null,a:null};const say=(role,t)=>{if(role==="u"&&!/[\u0600-\u06FF]/.test(t)){t=/[\u0600-\u06FF]/.test(bub.u?bub.u.textContent:"")?"":" …"}if(!t)return;if(!bub[role]){bub[role]=document.createElement("div");bub[role].className="m "+role;$("#cvtr").appendChild(bub[role])}bub[role].textContent+=t;$("#cvtr").scrollTop=1e6};
  return await new Promise((res,rej)=>{let ok=false;const to=setTimeout(()=>{if(!ok){try{g&&g.end()}catch(e){}rej(new Error("timeout"))}},15000);let g=null;
   GLive.start({token:j.token,model:j.model,kick:"(المكالمة اتفتحت دلوقتي — سلّم على أستاذ أحمد باختصار)",
    onOpen:()=>{ok=true;clearTimeout(to);cvUI(true);cvState("متصل — اتكلم براحتك","listen");res(g)},
