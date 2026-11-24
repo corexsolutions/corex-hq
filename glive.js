@@ -12,18 +12,19 @@
     "if(r<this.fl*1.5)this.fl=this.fl*0.85+r*0.15;else this.fl=this.fl*0.998+r*0.002;const open=r>Math.max(0.0025,this.fl*1.35);if(open)this.h=18;else if(this.h>0)this.h--;" +
     "if(!this.on||this.h===0)this.b.fill(0);this.port.postMessage(this.b.slice(0));this.n=0}}return true}}registerProcessor('cx-pcm16',P)";
   let inCtx = null, outCtx = null, og = null;
+  // 24/11: near-neutral playback so Mona sounds exactly like the voice sample Ahmed picked (only a soft top cut + light compressor).
   // Employees play softer and warmer: lower level, highs (sibilance/harshness) cut,
   // a little body in the low-mids, and a gentle compressor so no word jumps out loud.
-  const OUT_VOL = 0.36;
+  const OUT_VOL = 0.5;
   function outGain() {
     if (og && og.context === outCtx) return og;
     const c = outCtx;
     og = c.createGain(); og.gain.value = OUT_VOL;
     const hp = c.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 90;          // rumble / hum
-    const warm = c.createBiquadFilter(); warm.type = "lowshelf"; warm.frequency.value = 260; warm.gain.value = 2.5;
-    const soft = c.createBiquadFilter(); soft.type = "highshelf"; soft.frequency.value = 2800; soft.gain.value = -9;
-    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 5500; lp.Q.value = 0.5;
-    const comp = c.createDynamicsCompressor(); comp.threshold.value = -26; comp.knee.value = 18; comp.ratio.value = 3.5; comp.attack.value = 0.01; comp.release.value = 0.25;
+    const warm = c.createBiquadFilter(); warm.type = "lowshelf"; warm.frequency.value = 260; warm.gain.value = 0;
+    const soft = c.createBiquadFilter(); soft.type = "highshelf"; soft.frequency.value = 6000; soft.gain.value = -2;
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 11000; lp.Q.value = 0.5;
+    const comp = c.createDynamicsCompressor(); comp.threshold.value = -18; comp.knee.value = 12; comp.ratio.value = 2; comp.attack.value = 0.01; comp.release.value = 0.25;
     og.connect(hp); hp.connect(warm); warm.connect(soft); soft.connect(lp); lp.connect(comp); comp.connect(c.destination);
     return og;
   }
