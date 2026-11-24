@@ -136,7 +136,7 @@ if(!HQK){if(document.body)hqLock();else document.addEventListener("DOMContentLoa
 <script src="glive.js?v=12"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
-const VER="20261124g";const VID=n=>IMG("v"+n)+"?v="+VER;
+const VER="20261125a";const VID=n=>IMG("v"+n)+"?v="+VER;
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
 {id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات والأمن السيبراني"},{id:"impl",name:"المشاريع والتنفيذ"},
@@ -144,8 +144,8 @@ const DEPTS=[
 {id:"mkt",name:"التسويق"},{id:"gov",name:"الحكومية والقانونية"},{id:"lobby",name:"الاستقبال"},{id:"lounge",name:"ركن الاستراحة"}];
 // [id, name, role, dept, lead, x%, y%]  — x من اليسار، y مكان راس الموظف
 const STAFF=[
-["hamad","حسام","مدير العمليات — يوزّع مهامك ويرجع بالتقرير","mgmt",1,87,33],
-["shahd","منى","مديرة المكتب — التقويم والمتابعات","mgmt",0,32,30],
+["hamad","حسام","مدير العمليات — يوزّع مهامك ويرجع بالتقرير","mgmt",1,83,27],
+["shahd","منى","مديرة المكتب — التقويم والمتابعات","mgmt",0,25,17],
 ["omar","عمر","محلّل البيانات — التقارير والداشبوردات والمؤشرات","data",0,16.3,36],
 ["khaled","كريم","مدير المبيعات","sales",1,22,22],["reem","ياسمين","الليدز وتسجيلها","sales",0,42,44],["yousef","شريف","عروض الأسعار والعقود","sales",0,62,41],["noura","دينا","متابعة العملاء","sales",0,80,46],
 ["lina","رانيا","مديرة التسويق","mkt",1,24,22],["sara","سلمى","المحتوى والسوشيال","mkt",0,41,46],["fahad","حازم","الإعلانات الممولة","mkt",0,65,40],["majed","باسم","السيو والموقع","mkt",0,87,45],
