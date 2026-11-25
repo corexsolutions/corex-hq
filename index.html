@@ -136,7 +136,7 @@ if(!HQK){if(document.body)hqLock();else document.addEventListener("DOMContentLoa
 <script src="glive.js?v=12"></script>
 <script>
 const MEDIA={};const IMG=n=>MEDIA[n]||(n[0]==="v"?n+".mp4":n+".jpg?v="+(typeof VER!=="undefined"?VER:"1"));
-const VER="20261125j";const VID=n=>IMG("v"+n)+"?v="+VER;
+const VER="20261125k";const VID=n=>IMG("v"+n)+"?v="+VER;
 function playV(v,src){v.classList.remove("on");v.onloadeddata=()=>{v.classList.add("on");v.play().catch(()=>{})};v.onerror=()=>v.classList.remove("on");v.src=src}
 const DEPTS=[
 {id:"owner",name:"مكتب المدير التنفيذي"},{id:"mgmt",name:"الإدارة العليا"},{id:"data",name:"تحليل البيانات والأمن السيبراني"},{id:"impl",name:"المشاريع والتنفيذ"},
@@ -209,7 +209,7 @@ function openP(id){curP=id;const p=STAFF.find(x=>x.id===id);const s=stOf(id);$("
  $("#drawer").classList.add("on");history.pushState({room:cur,drawer:id},"",location.hash||"#")}
 
 const FEM=new Set(["shahd","reem","noura","lina","sara","haya","dana","jood","lama","rahaf","rima","nada"]);
-const VOICE={"omar":"PmRaqkJ2uk3Y9jrp9UjJ","ziad":"Rs6W7zDzDMy5M4DoQvwj","hamad":"IES4nrmZdUBHByLBde0P","shahd":"xPcC3nehhziQaOrIeAwv","nada":"L10lEremDiJfPicq5CPh","khaled":"OFHP1Qg30FPoNfkUFFlA","reem":"6aXW46RTUz6Y2lkBGQ1a","yousef":"hYqZq4J77gUOQZK4uSvg","noura":"80le32Uz2DfWFo4Foz0p","lina":"Vu9gRjkR23ZG8EWrSmnj","sara":"I3u6waC588j43py1kDN2","fahad":"5REPlS2Ja1VZ7zNA0ykn","majed":"ihycSANIrpHfhWoaq1g3","abdullah":"VMy40598IGgDeaOE8phq","haya":"JHdGl5PsEzushIzzVSd1","dana":"kQ2VDreF7XEea8InkZmA","sultan":"ocqVw6LVSdCxCra4XhMH","tarek":"x6fvBLXv9YxzoVJQ0wp6","jood":"LjKPkQHpXCsWoy7Pjq4U","rakan":"ckGEQg6YnSVooU5uDRsF","lama":"YwQu4f7UeJh7h0uWMnEn","badr":"mX8opBj7bbi4G2cE9j2w","rahaf":"vWDp3PLsTWjIhBxxUKh9","nayef":"QfMIySsRuJWjZPZCnDQp","nasser":"JTMaHm6sHVI3NZgPaWDz","waleed":"FXJhBZJ1DJMO0U4ZPSur","rima":"mS4cERRqrNy5Kmlx8Udf"};
+const VOICE={"omar":"PmRaqkJ2uk3Y9jrp9UjJ","ziad":"Rs6W7zDzDMy5M4DoQvwj","hamad":"IES4nrmZdUBHByLBde0P","shahd":"Fzd3U2Lg11XFN32IEcQV","nada":"kQ2VDreF7XEea8InkZmA","khaled":"OFHP1Qg30FPoNfkUFFlA","reem":"L10lEremDiJfPicq5CPh","yousef":"hYqZq4J77gUOQZK4uSvg","noura":"80le32Uz2DfWFo4Foz0p","lina":"vWDp3PLsTWjIhBxxUKh9","sara":"I3u6waC588j43py1kDN2","fahad":"5REPlS2Ja1VZ7zNA0ykn","majed":"ihycSANIrpHfhWoaq1g3","abdullah":"VMy40598IGgDeaOE8phq","haya":"LjKPkQHpXCsWoy7Pjq4U","dana":"6aXW46RTUz6Y2lkBGQ1a","sultan":"ocqVw6LVSdCxCra4XhMH","tarek":"x6fvBLXv9YxzoVJQ0wp6","jood":"I3u6waC588j43py1kDN2","rakan":"ckGEQg6YnSVooU5uDRsF","lama":"L10lEremDiJfPicq5CPh","badr":"mX8opBj7bbi4G2cE9j2w","rahaf":"vWDp3PLsTWjIhBxxUKh9","nayef":"QfMIySsRuJWjZPZCnDQp","nasser":"JTMaHm6sHVI3NZgPaWDz","waleed":"FXJhBZJ1DJMO0U4ZPSur","rima":"LjKPkQHpXCsWoy7Pjq4U"};
 const AG_MONA="agent_1901m7znrmtmfbfswmd325epwv07",AG_F="agent_3701m81ztkykfh9b8je1ytjwynxd",AG_M="agent_5301m81zvyzae7jsrq9j0j09dwq5";
 let EL=null,conv=null,callId=null,muted=false,SIM=null,simli=null;
 const SIMLI_TOKEN="https://corex.app.n8n.cloud/webhook/hq-simli-token",FACE_F="a6d08e06-038a-4b32-84ae-b02e0f0f1140",FACE_M="99767950-9d68-4783-a305-9118006d3363",FACE={};
@@ -259,7 +259,7 @@ async function startGemini(id,p,d,mine){
   }).then(x=>{g=x;if(ok)res(g)}).catch(e=>{clearTimeout(to);rej(e)})})}
 async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!p)return;const d=DEPTS.find(x=>x.id===p.dept);
  const mine=tasks.filter(t=>t.to===id).slice(0,6).map((t,i)=>`${i+1}) ${t.title} — ${PILL[t.status]||t.status}${t.report?": "+String(t.report).replace(/https?:\S+/g,"").slice(0,350):""}`).join("\n")||"مفيش مهام مسجلة لسه.";
- $("#cvs").disabled=true;cvState("بيتصل…");const canG=id!=="shahd"&&!/[?&]engine=e/.test(location.search)&&!!(window.GLive&&GLive.prepare());
+ $("#cvs").disabled=true;cvState("بيتصل…");const canG=!FEM.has(id)&&!/[?&]engine=e/.test(location.search)&&!!(window.GLive&&GLive.prepare());
  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
  catch(e){$("#cvs").disabled=false;cvState("المايك مقفول — اسمح للمايك من إعدادات المتصفح. لو فاتح من جوه تيليجرام، افتح الرابط في سفاري أو كروم.");return}
  if(canG){try{gl=await startGemini(id,p,d,mine);return}catch(e){console.log("GLive failed, falling back",e);gl=null;$("#cvtr").innerHTML="";cvState("بيتصل…")}}
