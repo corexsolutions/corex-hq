@@ -239,7 +239,7 @@ function cvState(t,cls){$("#cvt").textContent=t;$("#cv").classList.remove("speak
 function cvMsg(txt,me){const m=document.createElement("div");m.className="m "+(me?"u":"a");m.textContent=txt;$("#cvtr").appendChild(m);$("#cvtr").scrollTop=1e6}
 function cvUI(live){$("#cvs").hidden=live;$("#cve").hidden=!live;$("#cvm").hidden=!live;$("#cvp").hidden=!live;if(!live){ptt=false;$("#cvh").hidden=true;$("#cvp").textContent="🔊 وضع الدوشة"}}
 function callP(id){const p=STAFF.find(x=>x.id===id);if(!p)return;const d=DEPTS.find(x=>x.id===p.dept);callId=id;
- $("#drawer").classList.remove("on");$("#cva").textContent="";$("#cva").style.backgroundImage="url(av/"+id+".jpg)";$("#cvn").textContent=p.name;$("#cvr").textContent=p.role+(d?" — "+d.name:"");
+ $("#drawer").classList.remove("on");$("#cva").textContent="";$("#cva").style.backgroundImage="url(av/"+id+".jpg?v="+VER+")";$("#cvn").textContent=p.name;$("#cvr").textContent=p.role+(d?" — "+d.name:"");
  $("#cvtr").innerHTML="";cvUI(false);cvState("اضغط «ابدأ المكالمة» واسمح للمايك، وكلّم "+p.name+" بصوتك.");$("#cv").classList.add("on");
  history.pushState({room:cur,call:id},"",location.hash||"#");loadEL().catch(()=>{})}
 const LIVE_TOKEN="https://corex.app.n8n.cloud/webhook/hq-live-token";let gl=null;
