@@ -210,7 +210,7 @@ function openP(id){curP=id;const p=STAFF.find(x=>x.id===id);const s=stOf(id);$("
 
 const FEM=new Set(["shahd","reem","noura","lina","sara","haya","dana","jood","lama","rahaf","rima","nada"]);
 const VOICE={"omar":"PmRaqkJ2uk3Y9jrp9UjJ","ziad":"Rs6W7zDzDMy5M4DoQvwj","hamad":"IES4nrmZdUBHByLBde0P","shahd":"Fzd3U2Lg11XFN32IEcQV","nada":"kQ2VDreF7XEea8InkZmA","khaled":"OFHP1Qg30FPoNfkUFFlA","reem":"L10lEremDiJfPicq5CPh","yousef":"hYqZq4J77gUOQZK4uSvg","noura":"80le32Uz2DfWFo4Foz0p","lina":"vWDp3PLsTWjIhBxxUKh9","sara":"I3u6waC588j43py1kDN2","fahad":"5REPlS2Ja1VZ7zNA0ykn","majed":"ihycSANIrpHfhWoaq1g3","abdullah":"VMy40598IGgDeaOE8phq","haya":"LjKPkQHpXCsWoy7Pjq4U","dana":"6aXW46RTUz6Y2lkBGQ1a","sultan":"ocqVw6LVSdCxCra4XhMH","tarek":"x6fvBLXv9YxzoVJQ0wp6","jood":"I3u6waC588j43py1kDN2","rakan":"ckGEQg6YnSVooU5uDRsF","lama":"L10lEremDiJfPicq5CPh","badr":"mX8opBj7bbi4G2cE9j2w","rahaf":"vWDp3PLsTWjIhBxxUKh9","nayef":"QfMIySsRuJWjZPZCnDQp","nasser":"JTMaHm6sHVI3NZgPaWDz","waleed":"FXJhBZJ1DJMO0U4ZPSur","rima":"LjKPkQHpXCsWoy7Pjq4U"};
-const AG_MONA="agent_1901m7znrmtmfbfswmd325epwv07",AG_F="agent_3701m81ztkykfh9b8je1ytjwynxd",AG_M="agent_5301m81zvyzae7jsrq9j0j09dwq5";
+const AG_MONA="agent_1901m7znrmtmfbfswmd325epwv07",AG_F="agent_3701m81ztkykfh9b8je1ytjwynxd",AG_M="agent_5301m81zvyzae7jsrq9j0j09dwq5",AG_NADA="agent_9801m8fcj2csec2r05h8rmv82y3v";
 let EL=null,conv=null,callId=null,muted=false,SIM=null,simli=null;
 const SIMLI_TOKEN="https://corex.app.n8n.cloud/webhook/hq-simli-token",FACE_F="a6d08e06-038a-4b32-84ae-b02e0f0f1140",FACE_M="99767950-9d68-4783-a305-9118006d3363",FACE={};
 function loadSimli(){if(SIM)return SIM;SIM=new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="simli.js?v=1";sc.onload=()=>res(window.SimliClient);sc.onerror=()=>{SIM=null;rej(new Error("simli"))};document.head.appendChild(sc)});return SIM}
@@ -265,7 +265,7 @@ async function startCall(){const id=callId;const p=STAFF.find(x=>x.id===id);if(!
  if(canG){try{gl=await startGemini(id,p,d,mine);return}catch(e){console.log("GLive failed, falling back",e);gl=null;$("#cvtr").innerHTML="";cvState("بيتصل…")}}
  let C;try{C=await loadEL()}catch(e){$("#cvs").disabled=false;cvState("مش قادر أحمّل المكالمة — اتأكد من النت وجرّب تاني.");return}
  cvState("بيجهّز الصورة…");simli=FACE[id]?await startFace(id,isMonaF(id)):null;const face=simli;cvState("بيتصل…");
- const isMona=id==="shahd";const opts={agentId:isMona?AG_MONA:(FEM.has(id)?AG_F:AG_M),dynamicVariables:{emp_name:p.name,emp_role:p.role,emp_dept:d?d.name:"",emp_tasks:mine},overrides:(!isMona&&VOICE[id])?{tts:{voiceId:VOICE[id]}}:undefined,
+ const isMona=id==="shahd";const opts={agentId:isMona?AG_MONA:(id==="nada"?AG_NADA:(FEM.has(id)?AG_F:AG_M)),dynamicVariables:{emp_name:p.name,emp_role:p.role,emp_dept:d?d.name:"",emp_tasks:mine},overrides:(!isMona&&id!=="nada"&&VOICE[id])?{tts:{voiceId:VOICE[id]}}:undefined,
   onConnect:()=>{cvUI(true);cvState("متصل — اتكلم براحتك","listen")},
   onDisconnect:()=>{conv=null;if(simli){try{simli.stop()}catch(e){}simli=null;$("#cv").classList.remove("avt")}cvUI(false);$("#cvs").disabled=false;$("#cvs").textContent="📞 اتصل تاني";cvState("المكالمة خلصت. أي طلب قلته هيتسجل ويتنفذ.")},
   onModeChange:({mode})=>mode==="speaking"?cvState(p.name+" بيتكلم…","speak"):cvState("بيسمعك… اتكلم","listen"),
